@@ -6,10 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "node scripts/seed.mjs",
+    "test:cases": "npx tsx scripts/verify-cases.mjs",
+    "test:unit": "npx tsx tests/unit-tests.test.ts && npx tsx tests/phase4-tests.test.ts",
+    "test": "npm run test:cases && npm run test:unit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "@types/qrcode": "^1.5.6",
     "next": "16.4.2",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
