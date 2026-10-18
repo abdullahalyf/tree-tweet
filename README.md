@@ -53,6 +53,8 @@ npm test                   # cases, unit, reliability and presentation suites
 npm run test:cases
 npm run test:unit
 npm run test:reliability
+ npm run test:p5
+ npm run test:receipts
 npm run test:presentation
 npm run typecheck
 npm run lint

@@ -212,7 +212,9 @@ export function verifyMutationHistory(khatian: KhatianRecord): VerificationIssue
     }];
   }
   const latest = [...history].sort((a, b) => b.date.localeCompare(a.date))[0];
-  if (latest.status !== khatian.mutation_status) return [{
+  // Dates have no sequence/time: contradictory events on the latest date
+  // cannot be resolved by whichever row the database happens to return first.
+  if (history.some(event => event.date === latest.date && event.status !== khatian.mutation_status)) return [{
     code: 'MUTATION_HISTORY_CONFLICT', severity: 'WARNING', titleBn: 'নামজারির তথ্যে অমিল আছে',
     descriptionBn: 'নামজারির সর্বশেষ ইতিহাস ও বর্তমান অবস্থার তথ্য এক নয়। মূল নথি মিলিয়ে নিন।',
     field: 'mutation_history',

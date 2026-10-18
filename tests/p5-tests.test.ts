@@ -72,6 +72,20 @@ test('P5: missing owner and seller cannot be certified by a matching hash', asyn
   assert.notEqual((await runLandVerification(sample)).overallStatus, 'GREEN');
 });
 
+test('P5: conflicting latest mutation events warn regardless of input order', async () => {
+  const entries = [
+    { date: '2024-01-15', status: 'done' as const, reference: 'SYNTHETIC-DONE' },
+    { date: '2024-01-15', status: 'pending' as const, reference: 'SYNTHETIC-PENDING' },
+  ];
+  for (const history of [entries, [...entries].reverse()]) {
+    const sample = plot();
+    Object.assign(sample.khatian, { mutation_history: history });
+    const result = await runLandVerification(sample);
+    assert.equal(result.overallStatus, 'YELLOW');
+    assert.ok(result.issues.some(issue => issue.code === 'MUTATION_HISTORY_CONFLICT'));
+  }
+});
+
 test('P5: invalid status on a nonselected deed cannot be ignored', async () => {
   const sample = plot();
   const other = { ...sample.deeds[0], deed_no: 'P5-OTHER', status: 'unknown' } as unknown as DeedRecord;
