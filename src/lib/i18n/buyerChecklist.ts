@@ -1,4 +1,4 @@
-﻿export interface MutationHistoryEntry { date: string; status: 'none' | 'pending' | 'done'; reference: string }
+export interface MutationHistoryEntry { date: string; status: 'none' | 'pending' | 'done'; reference: string }
 export function readMutationHistory(value: unknown): MutationHistoryEntry[] {
   if (!Array.isArray(value) || value.length === 0) return [];
   const valid = value.every(entry => {
@@ -26,7 +26,7 @@ export function getBuyerChecklist(data: BuyerEvidence): { id: 'owner' | 'mutatio
   const acquisition = data.plotStatus?.acquisition_status;
   return [
     { id: 'owner', state: state(!mismatch && knownText(data.khatian?.owner_name) && knownText(data.selectedDeed?.seller) && !has(['DEED_NOT_FOUND', 'DEED_RECORDS_MISSING', 'KHATIAN_NOT_FOUND']), has(['SELLER_NAME_VARIATION', 'SELLER_OWNER_MISMATCH'])) },
-    { id: 'mutation', state: state(!mismatch && ['none', 'pending', 'done'].includes(String(mutation)) && readMutationHistory(data.khatian?.mutation_history).length > 0 && !has(['MUTATION_HISTORY_UNAVAILABLE']), mutation === 'none' || mutation === 'pending' || has(['MUTATION_NOT_DONE', 'MUTATION_PENDING'])) },
+    { id: 'mutation', state: state(!mismatch && ['none', 'pending', 'done'].includes(String(mutation)) && readMutationHistory(data.khatian?.mutation_history).length > 0 && !has(['MUTATION_HISTORY_UNAVAILABLE']), mutation === 'none' || mutation === 'pending' || has(['MUTATION_NOT_DONE', 'MUTATION_PENDING', 'MUTATION_HISTORY_CONFLICT'])) },
     { id: 'court', state: state(!mismatch && typeof data.plotStatus?.court_case === 'boolean', data.plotStatus?.court_case === true || has(['PLOT_COURT_DISPUTE'])) },
     { id: 'khas', state: state(!mismatch && ['normal', 'khas'].includes(String(data.khatian?.land_type)), data.khatian?.land_type === 'khas' || has(['KHAS_LAND_PROHIBITED'])) },
     { id: 'acquisition', state: state(!mismatch && ['not_reported', 'notice', 'acquired'].includes(String(acquisition)) && !has(['ACQUISITION_STATUS_UNAVAILABLE']), acquisition === 'notice' || acquisition === 'acquired' || has(['ACQUISITION_NOTICE', 'LAND_ACQUIRED'])) },

@@ -43,7 +43,7 @@ test('English case captions agree with the immutable fixture risk facts', () => 
   assert.ok(byCode.G.deeds[0].area > byCode.G.khatian.remaining_area);
   assert.match(scenarioEnglish.G, /exceeds remaining/i);
   assert.match(byCode.H.deeds[0].hash, /TAMPERED/);
-  assert.match(scenarioEnglish.H, /fingerprint mismatch/i);
+  assert.equal(scenarioEnglish.H, 'Deed details do not match');
 });
 
 test('unknown flags cannot masquerade as explicit negative evidence', () => {
@@ -119,4 +119,15 @@ test('plain issue copy gives an action without leaking hash jargon or raw engine
     assert.notEqual(localizeIssue({...issue,code}, 'en').title, 'Further checks are needed');
     assert.ok(localizeIssue({...issue,code}, 'bn').action.length > 20);
   }
+});
+
+test('mutation history conflict never renders a clear buyer check', () => {
+  const data = completeEvidence();
+  data.issues = [{code: 'MUTATION_HISTORY_CONFLICT'}];
+  assert.equal(checkState(data, 'mutation'), 'review');
+  delete data.khatian.mutation_history;
+  assert.equal(checkState(data, 'mutation'), 'review-missing');
+  const issue = {code: 'MUTATION_HISTORY_CONFLICT', severity: 'WARNING', titleBn: '', descriptionBn: ''};
+  assert.equal(localizeIssue(issue, 'en').title, 'Mutation records do not agree');
+  assert.ok(localizeIssue(issue, 'bn').action.length > 20);
 });

@@ -8,7 +8,7 @@ const sampleLabels: Record<string, [string, string]> = {
   A: ['রেকর্ডে ঝুঁকি মেলেনি', 'No risk detected'], B: ['রেকর্ডে ঝুঁকি মেলেনি', 'No risk detected'],
   C: ['নামে সামান্য অমিল', 'Name variation'], D: ['জমি বন্ধক আছে', 'Mortgage reported'],
   E: ['দ্বৈত বিক্রির আশঙ্কা', 'Possible double sale'], F: ['বিক্রেতা ও মালিক আলাদা', 'Seller differs from owner'],
-  G: ['বেশি জমি বিক্রির চেষ্টা', 'Sale exceeds available area'], H: ['দলিলের হ্যাশ অমিল', 'Deed hash mismatch'],
+  G: ['বেশি জমি বিক্রির চেষ্টা', 'Sale exceeds available area'], H: ['দলিলের তথ্য মিলছে না', 'Deed details do not match'],
 };
 
 interface SearchFormProps { onSearch: (dagNo: string, deedNo?: string) => void; isLoading: boolean; selectedDagNo?: string; selectedDeedNo?: string }
