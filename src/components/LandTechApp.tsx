@@ -151,7 +151,7 @@ function VerificationWorkspace() {
       <AmbientParticles />
       <a href="#main-content" className="skip-link">{t('মূল বিষয়বস্তুতে যান', 'Skip to main content')}</a>
       <Navbar activeTab={activeTab} onTabChange={changeTab} />
-      <main id="main-content" tabIndex={-1} className="scroll-mt-48 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+      <main id="main-content" tabIndex={-1} className={activeTab === 'guide' ? 'scroll-mt-48 flex-1 w-full' : 'scroll-mt-48 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8'}>
         {activeTab === 'guide' && <BuyerGuide onTryDemo={() => changeTab('search')} motionPaused={motionPaused} onToggleMotion={() => setMotionPaused(previous => !previous)} />}
         {activeTab === 'search' && (
           <div className="space-y-8 animate-fade-in">
@@ -178,11 +178,28 @@ function VerificationWorkspace() {
         {activeTab === 'register' && <DemoRegistrationForm onVerifyDeed={(dag, deed) => { changeTab('search'); void handleSearch(dag, deed); }} />}
         {activeTab === 'tamper' && <TamperDemonstrationView />}
       </main>
-      <footer className="border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto px-4 space-y-2">
-          <p className="font-semibold text-slate-700">TreeTweet · {t('ভূমির তথ্য, পরিষ্কার সিদ্ধান্ত', 'Land records. Clearer decisions.')}</p>
-          <p>{t('স্বাধীন সহায়ক প্রকল্প। সরকারি রেকর্ড সরাসরি আনা হয় না। নমুনা পরীক্ষার তথ্য কাল্পনিক।', 'Independent guidance project. Government records are not retrieved here. Sample checker records are synthetic.')}</p>
-          <p>{t('ডেমো নিবন্ধন এই ব্রাউজারে সংরক্ষিত হয়; এটি স্থায়ী সরকারি বা ক্লাউড রেকর্ড নয়।', 'Demo receipts are saved in this browser; they are not permanent government or cloud records.')}</p>
+      <footer className="mt-10 bg-[#12633e] text-[#fffef9]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-9 grid gap-8 md:grid-cols-3">
+          <section className="space-y-3" aria-labelledby="footer-project-title">
+            <h2 id="footer-project-title" className="font-bold text-xl">TreeTweet</h2>
+            <p className="text-sm leading-7">{t('জমি কেনার আগে কাগজ বুঝুন, সঠিক জায়গায় খোঁজ নিন। মালিক, নামজারি, মামলা, খাস ও অধিগ্রহণ—আপনার পাঁচটি প্রথম ধাপ।', 'Understand the papers and know where to ask before buying land. Start with ownership, mutation, cases, khas and acquisition.')}</p>
+            <p className="text-sm leading-7">{t('স্বাধীন সহায়ক প্রকল্প। সরকারি ওয়েবসাইট নয়; সরকারি রেকর্ড সরাসরি আনা হয় না।', 'An independent guidance project. This is not a government website and does not retrieve government records.')}</p>
+          </section>
+          <section aria-labelledby="footer-sources-title">
+            <h2 id="footer-sources-title" className="font-bold text-base mb-3">{t('সরকারি তথ্যের উৎস', 'Official information sources')}</h2>
+            <ul className="space-y-1 text-sm">
+              <li><a className="inline-flex min-h-11 items-center gap-3 underline underline-offset-4" href="https://www.land.gov.bd/" target="_blank" rel="noopener noreferrer">{t('ভূমি মন্ত্রণালয়', 'Ministry of Land')} <span aria-hidden="true">↗</span><span className="sr-only">{t('নতুন ট্যাব', 'new tab')}</span></a></li>
+              <li><a className="inline-flex min-h-11 items-center gap-3 underline underline-offset-4" href="https://bhumipedia.land.gov.bd/" target="_blank" rel="noopener noreferrer">{t('প্রকাশনা ও নির্দেশনা', 'Publications and guidance')} <span aria-hidden="true">↗</span><span className="sr-only">{t('নতুন ট্যাব', 'new tab')}</span></a></li>
+            </ul>
+          </section>
+          <section aria-labelledby="footer-help-title" className="space-y-3">
+            <h2 id="footer-help-title" className="font-bold text-base">{t('ভূমিসেবার সাহায্য', 'Land service help')}</h2>
+            <a href="tel:16122" className="inline-flex min-h-12 items-center gap-3 rounded-lg bg-white/10 px-5 py-2 text-2xl font-bold text-[#fff2bb]"><span aria-hidden="true">☎</span> {t('১৬১২২', '16122')}</a>
+            <p className="text-sm leading-7">{t('সরকারি ভূমিসেবা হটলাইন। কলের চার্জ প্রযোজ্য হতে পারে।', 'Government land service hotline. Call charges may apply.')}</p>
+          </section>
+        </div>
+        <div className="border-t border-white/20 px-4 py-5 text-center text-xs leading-6">
+          <p>{t('নমুনা পরীক্ষার তথ্য কাল্পনিক। ডেমো নিবন্ধন এই ব্রাউজারে থাকে; এটি স্থায়ী সরকারি রেকর্ড নয়।', 'Sample checker records are synthetic. Demo receipts stay in this browser and are not permanent government records.')}</p>
         </div>
       </footer>
     </div>
