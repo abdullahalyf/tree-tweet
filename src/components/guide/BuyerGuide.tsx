@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, type MouseEvent } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
+import Image from 'next/image';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
+import { useGuideMotion } from './useGuideMotion';
 
 const checks = [
   {
@@ -52,6 +54,8 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
   onToggleMotion: () => void;
 }) {
   const { t, language } = useLanguage();
+  const guideRef = useRef<HTMLDivElement>(null);
+  useGuideMotion(guideRef, motionPaused);
   const [papers, setPapers] = useState<Record<string, PaperStatus>>({});
   const count = Object.values(papers).filter(value => value === 'collected').length;
   const mismatch = Object.values(papers).includes('mismatch');
@@ -66,7 +70,8 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
     target.scrollIntoView({ block: 'start', behavior: motionPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
 
-  return <div className="space-y-6 buyer-guide">
+  return <div ref={guideRef} className="space-y-6 buyer-guide">
+    <div className="guide-reading-line print:hidden" aria-hidden="true"><span /></div>
     <section id="guide-start" tabIndex={-1} className="guide-welcome guide-destination" aria-labelledby="buyer-guide-title">
       <div className="guide-welcome-copy">
         <p className="guide-eyebrow"><span aria-hidden="true">✦</span> {t('জমি কেনার আগে · আপনার সহায়িকা', 'Your guide · before buying land')}</p>
@@ -78,7 +83,13 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
         </div>
         <p className="guide-intro-boundary">{t('আসল কাগজ আপলোড লাগে না। এখানে সরকারি রেকর্ড এনে যাচাই করা হয় না।', 'No private document uploads. We do not retrieve or verify government records here.')}</p>
       </div>
-      <div className="guide-how" aria-labelledby="guide-how-title">
+      <figure className="rural-scene" aria-label={t('বাংলার গ্রামের প্রতীকী দৃশ্য', 'An illustrative Bengali village landscape')}>
+        <div className="rural-parallax"><div className="rural-camera"><Image src="/images/village-rice-fields.webp" alt={t('সবুজ ধানক্ষেতের আলপথ, তালগাছ ও গ্রামের ঘরবাড়ির প্রতীকী ছবি', 'An illustrative scene of green rice paddies, an earthen path, palms and village homes')} fill sizes="(max-width: 640px) 100vw, (max-width: 1023px) 90vw, 50vw" preload className="rural-photo" /></div></div>
+        <svg className="rural-birds" viewBox="0 0 100 35" fill="none" aria-hidden="true"><path d="M4 15q8-9 16 0 8-9 16 0M45 28q6-7 12 0 6-7 12 0M68 8q6-7 12 0 6-7 12 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+        <figcaption><span className="rural-caption-kicker">{t('বাংলার মাটির টানে', 'Rooted in rural Bengal')}</span><strong>{t('গ্রামের জমি।\nপরিবারের ভবিষ্যৎ।', 'Village land.\nA family’s future.')}</strong><span className="rural-scene-note">{t('প্রতীকী গ্রামীণ দৃশ্য', 'Illustrative rural scene')}</span></figcaption>
+      </figure>
+    </section>
+    <section className="guide-how" data-scroll-reveal aria-labelledby="guide-how-title">
         <h2 id="guide-how-title">{t('যেভাবে ব্যবহার করবেন', 'How to use this guide')}</h2>
         <ol>
           {[
@@ -87,9 +98,8 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
             [t('নিজের প্রস্তুতি চিহ্ন দিন', 'Mark your preparation'), t('কাগজ পেয়েছেন, নাকি অমিল আছে—বেছে রাখুন।', 'Mark whether you have the papers or found a difference.')],
           ].map(([title, body], index) => <li key={index}><span className="guide-how-number" aria-hidden="true">{number(index + 1)}</span><div><h3>{title}</h3><p>{body}</p></div></li>)}
         </ol>
-      </div>
     </section>
-    <nav id="guide-topics" tabIndex={-1} aria-labelledby="guide-topics-title" className="guide-topics guide-destination print:hidden">
+    <nav id="guide-topics" tabIndex={-1} data-scroll-reveal aria-labelledby="guide-topics-title" className="guide-topics guide-destination print:hidden">
       <div className="guide-section-heading"><h2 id="guide-topics-title">{t('কোন বিষয়টি দেখতে চান?', 'What would you like to check?')}</h2><p>{t('বিষয়ে চাপ দিন, সেই ধাপে চলে যান।', 'Choose a topic to go straight to that step.')}</p></div>
       <div className="guide-topic-grid">
         {checks.map((check, index) => <a key={check.id} href={`#check-${check.id}`} onClick={goToSection} className="guide-topic-link" style={{ animationDelay: `${index * 55}ms` }}>
@@ -103,14 +113,14 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
       <p className="font-bold">{t('সরকারি সেবার পথ দেখাই; সরকারি রেকর্ড এখানে আনা হয় না।', 'We guide you to official services; we do not retrieve government records here.')}</p>
       <p>{t('TreeTweet একটি স্বাধীন সহায়ক প্রকল্প, সরকারি ওয়েবসাইট নয়। বোতাম চাপলে বাইরের সরকারি সাইট খুলবে; সেখানে নিবন্ধন বা আবেদন লাগতে পারে।', 'TreeTweet is an independent guidance project, not a government website. Buttons open external official sites, which may require registration or an application.')}</p>
     </div>
-    <section id="guide-papers" tabIndex={-1} className="guide-destination rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="papers-heading">
+    <section id="guide-papers" tabIndex={-1} data-scroll-reveal className="guide-destination rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="papers-heading">
       <h2 id="papers-heading" className="text-lg font-bold">{t('আগে এই তথ্যগুলো হাতে রাখুন', 'Have these details ready')}</h2>
       <p className="text-sm leading-7 text-slate-700">{t('জেলা → উপজেলা → মৌজা → জরিপের ধরন → খতিয়ান ও দাগ নম্বর। সঙ্গে দলিলের নম্বর, সাল ও সাব-রেজিস্ট্রি অফিসের নাম।', 'District → upazila → mouza → survey type → khatian and plot number. Also keep the deed number, year and sub-registry office name.')}</p>
       <p className="text-sm text-slate-600">{t('এই পাতায় আসল নাম, পরিচয়পত্র বা দলিল আপলোড করতে হবে না।', 'You do not need to enter real names or upload identity documents or deeds on this page.')}</p>
       <a href="#check-owner" onClick={goToSection} className="guide-start-button print:hidden">{t('প্রথম ধাপ: মালিকের পরিচয়', 'Step 1: Owner identity')} <span aria-hidden="true">→</span></a>
     </section>
     <div id="buyer-checks" className="scroll-mt-36 grid gap-4 md:grid-cols-2">
-      {checks.map((check, index) => <section key={check.id} id={`check-${check.id}`} tabIndex={-1} data-paper-status={papers[check.id] || 'missing'} aria-labelledby={`guide-${check.id}`} className="guide-check guide-destination rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 space-y-4">
+      {checks.map((check, index) => <section key={check.id} id={`check-${check.id}`} tabIndex={-1} data-scroll-reveal data-paper-status={papers[check.id] || 'missing'} aria-labelledby={`guide-${check.id}`} className="guide-check guide-destination rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 space-y-4">
         <div className="flex items-center gap-3"><span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 font-bold text-emerald-900">{(index + 1).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}</span><h2 id={`guide-${check.id}`} className="text-lg font-bold text-emerald-950">{pick(check.title)}</h2></div>
         <div><h3 className="guide-instruction-label">{t('যা মিলিয়ে দেখবেন', 'What to compare')}</h3><p className="text-sm leading-7 text-slate-700">{pick(check.body)}</p></div>
         <div><h3 className="guide-instruction-label">{t('যেখানে সাহায্য পাবেন', 'Where to get help')}</h3><p className="text-sm leading-7 text-slate-600">{pick(check.office)}</p></div>
@@ -135,7 +145,7 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
         <p className="text-sm leading-7 text-amber-950">{t('টাকা দেওয়ার আগে মূল কাগজ, জমির অবস্থান ও দখল মিলিয়ে নিন। প্রয়োজনে ভূমি বিষয়ে অভিজ্ঞ আইনজীবীর সহায়তা নিন।', 'Before paying, compare original papers, the land’s location and possession. Seek help from a lawyer experienced in land matters when needed.')}</p>
       </section>
     </div>
-    <section id="preparation" tabIndex={-1} className="guide-destination rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="preparation-heading">
+    <section id="preparation" tabIndex={-1} data-scroll-reveal className="guide-destination rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="preparation-heading">
       <h2 id="preparation-heading" className="text-lg font-bold">{t('আপনার প্রস্তুতির তালিকা', 'Your preparation checklist')}</h2>
       <p role="status" className="font-semibold text-emerald-900 tabular-nums">{t(`কাগজ জোগাড়: ${count.toLocaleString('bn-BD')}/৫`, `Papers collected: ${count}/5`)}</p>
       <div className="guide-preparation-track" aria-hidden="true"><span style={{ transform: `scaleX(${count / checks.length})` }} /></div>
