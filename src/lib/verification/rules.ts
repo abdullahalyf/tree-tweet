@@ -1,6 +1,7 @@
 import { KhatianRecord, PlotStatusRecord, DeedRecord } from '../db/schema';
 import { normalizeBengaliName } from '../validation/normalize';
 import { verifyDeedIntegrity } from './hash';
+import { isISOCalendarDate } from '../validation/date';
 import { VerificationIssue, VerificationResult, VerificationStatus } from './types';
 
 export const MANDATORY_LEGAL_DISCLAIMER_BN =
@@ -157,7 +158,7 @@ export function verifyPlotEncumbrances(plotStatus: PlotStatusRecord | null): Ver
   }
   if (!plotStatus) return issues;
 
-  if (plotStatus.mortgaged) {
+  if (plotStatus.mortgaged === true) {
     issues.push({
       code: 'PLOT_MORTGAGED',
       severity: 'WARNING',
@@ -167,7 +168,7 @@ export function verifyPlotEncumbrances(plotStatus: PlotStatusRecord | null): Ver
     });
   }
 
-  if (plotStatus.court_case) {
+  if (plotStatus.court_case === true) {
     issues.push({
       code: 'PLOT_COURT_DISPUTE',
       severity: 'CRITICAL',
@@ -178,6 +179,47 @@ export function verifyPlotEncumbrances(plotStatus: PlotStatusRecord | null): Ver
   }
 
   return issues;
+}
+
+/** P5 requires acquisition evidence separately from mortgage/court flags. */
+export function verifyAcquisitionStatus(plotStatus: PlotStatusRecord | null): VerificationIssue[] {
+  const status = plotStatus?.acquisition_status;
+  if (status === 'not_reported') return [];
+  if (status === 'acquired') return [{
+    code: 'LAND_ACQUIRED', severity: 'CRITICAL', titleBn: 'জমি অধিগ্রহণের তথ্য আছে',
+    descriptionBn: 'দেওয়া রেকর্ডে জমিটি অধিগ্রহণ করা হয়েছে বলে উল্লেখ আছে। টাকা দেওয়ার আগে জেলা প্রশাসকের কার্যালয়ের ভূমি অধিগ্রহণ শাখায় নথি যাচাই করুন।',
+    field: 'acquisition_status',
+  }];
+  if (status === 'notice') return [{
+    code: 'ACQUISITION_NOTICE', severity: 'WARNING', titleBn: 'অধিগ্রহণের নোটিশের তথ্য আছে',
+    descriptionBn: 'দেওয়া তথ্যে জমি অধিগ্রহণের নোটিশের উল্লেখ আছে। কেনার আগে নোটিশের বর্তমান অবস্থা সংশ্লিষ্ট অফিসে মিলিয়ে নিন।',
+    field: 'acquisition_status',
+  }];
+  return [{
+    code: 'ACQUISITION_STATUS_UNAVAILABLE', severity: 'WARNING', titleBn: 'অধিগ্রহণের তথ্য পাওয়া যায়নি',
+    descriptionBn: 'এই জমি সরকারি কাজে নেওয়ার কোনো নোটিশ বা সিদ্ধান্ত আছে কি না, সেই তথ্য পাওয়া যায়নি। তথ্য নেই মানে সমস্যা নেই নয়।',
+    field: 'acquisition_status',
+  }];
+}
+
+export function verifyMutationHistory(khatian: KhatianRecord): VerificationIssue[] {
+  const history = khatian.mutation_history;
+  if (!Array.isArray(history) || history.length === 0 || history.some(event => !event || !isISOCalendarDate(event.date) || !['none', 'pending', 'done'].includes(event.status) || typeof event.reference !== 'string' || !event.reference.trim())) {
+    return [{
+      code: 'MUTATION_HISTORY_UNAVAILABLE', severity: 'WARNING', titleBn: 'নামজারির আগের তথ্য পাওয়া যায়নি',
+      descriptionBn: 'নামজারি কবে, কোন নথির ভিত্তিতে হয়েছে তার পূর্ণ তথ্য পাওয়া যায়নি। ভূমি অফিসে নামজারির মূল নথি মিলিয়ে নিন।',
+      field: 'mutation_history',
+    }];
+  }
+  const latest = [...history].sort((a, b) => b.date.localeCompare(a.date))[0];
+  // Dates have no sequence/time: contradictory events on the latest date
+  // cannot be resolved by whichever row the database happens to return first.
+  if (history.some(event => event.date === latest.date && event.status !== khatian.mutation_status)) return [{
+    code: 'MUTATION_HISTORY_CONFLICT', severity: 'WARNING', titleBn: 'নামজারির তথ্যে অমিল আছে',
+    descriptionBn: 'নামজারির সর্বশেষ ইতিহাস ও বর্তমান অবস্থার তথ্য এক নয়। মূল নথি মিলিয়ে নিন।',
+    field: 'mutation_history',
+  }];
+  return [];
 }
 
 /**
@@ -317,7 +359,7 @@ export async function runLandVerification(params: {
     // 2. Land type
     issues.push(...verifyLandType(khatian));
 
-    if (!['normal', 'khas'].includes(khatian.land_type) || !['none', 'pending', 'done'].includes(khatian.mutation_status) || !khatian.owner_name.trim()) {
+    if (!['normal', 'khas'].includes(khatian.land_type) || !['none', 'pending', 'done'].includes(khatian.mutation_status) || typeof khatian.owner_name !== 'string' || !khatian.owner_name.trim()) {
       issues.push({
         code: 'RECORD_DATA_INCOMPLETE', severity: 'WARNING',
         titleBn: 'খতিয়ানের তথ্য অসম্পূর্ণ',
@@ -327,6 +369,7 @@ export async function runLandVerification(params: {
 
     // 3. Mutation status
     issues.push(...verifyMutationStatus(khatian));
+    issues.push(...verifyMutationHistory(khatian));
 
     // 4. Seller verification
     const sellerToCheck = sellerName || selectedDeed?.seller;
@@ -336,6 +379,7 @@ export async function runLandVerification(params: {
 
     // 5. Encumbrances
     issues.push(...verifyPlotEncumbrances(plotStatus));
+    issues.push(...verifyAcquisitionStatus(plotStatus));
 
     // 6. Area check
     const areaToCheck = proposedArea !== undefined ? proposedArea : selectedDeed?.area;
@@ -352,7 +396,7 @@ export async function runLandVerification(params: {
 
     // 8. Deed Hash integrity check
     if (selectedDeed) {
-      if (!['active', 'cancelled'].includes(selectedDeed.status)) {
+      if (deeds.some(deed => !['active', 'cancelled'].includes(deed.status)) || typeof selectedDeed.seller !== 'string' || !selectedDeed.seller.trim() || typeof selectedDeed.buyer !== 'string' || !selectedDeed.buyer.trim() || !isISOCalendarDate(selectedDeed.date)) {
         issues.push({
           code: 'RECORD_DATA_INCOMPLETE', severity: 'WARNING',
           titleBn: 'দলিলের স্থিতি নিশ্চিত নয়',

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from 'react';
 export type Language = 'bn' | 'en';
 const STORAGE_KEY = 'treetweet_language';
@@ -21,7 +21,10 @@ const setLanguage = (next: Language) => {
 };
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const language = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  useEffect(() => { document.documentElement.lang = language; }, [language]);
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.title = language === 'bn' ? 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই' : 'TreeTweet — Check land records before buying';
+  }, [language]);
   return <LanguageContext.Provider value={{ language, setLanguage, t: (bn, en) => language === 'bn' ? bn : en }}>{children}</LanguageContext.Provider>;
 }
 export function useLanguage(): LanguageContextValue {

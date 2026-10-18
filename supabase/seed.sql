@@ -342,3 +342,31 @@ VALUES (
     'GENESIS-0000-0000-0000-000000000008',
     'active'
 );
+
+-- Explicit synthetic P5 metadata only for the eight fixed demo khatian IDs.
+-- Apply migration 002 before this seed. Never infer clear acquisition status
+-- for other records merely because the new column has been added.
+UPDATE public.khatian
+SET mutation_history = jsonb_build_array(jsonb_build_object(
+  'date', '2023-12-01', 'status', mutation_status,
+  'reference', 'DEMO-MUT-' || dag_no
+))
+WHERE id IN (
+  'a0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000002',
+  'a0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004',
+  'a0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000006',
+  'a0000000-0000-0000-0000-000000000007', 'a0000000-0000-0000-0000-000000000008'
+);
+
+UPDATE public.plot_status AS status
+SET acquisition_status = 'not_reported'
+WHERE EXISTS (
+  SELECT 1 FROM public.khatian AS record
+  WHERE record.dag_no = status.dag_no
+    AND record.id IN (
+      'a0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000002',
+      'a0000000-0000-0000-0000-000000000003', 'a0000000-0000-0000-0000-000000000004',
+      'a0000000-0000-0000-0000-000000000005', 'a0000000-0000-0000-0000-000000000006',
+      'a0000000-0000-0000-0000-000000000007', 'a0000000-0000-0000-0000-000000000008'
+    )
+);

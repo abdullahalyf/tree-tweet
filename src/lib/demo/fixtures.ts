@@ -34,8 +34,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 12.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-A' }],
     },
-    plotStatus: { dag_no: '0101', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0101', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000001',
@@ -69,8 +70,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 15.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-B' }],
     },
-    plotStatus: { dag_no: '0202', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0202', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000002',
@@ -104,8 +106,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 15.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-C' }],
     },
-    plotStatus: { dag_no: '0303', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0303', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000003',
@@ -139,8 +142,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 18.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-D' }],
     },
-    plotStatus: { dag_no: '0404', mortgaged: true, court_case: false },
+    plotStatus: { dag_no: '0404', mortgaged: true, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000004',
@@ -174,8 +178,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 10.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-E' }],
     },
-    plotStatus: { dag_no: '0505', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0505', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-00000000005a',
@@ -221,8 +226,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 14.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-F' }],
     },
-    plotStatus: { dag_no: '0606', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0606', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000006',
@@ -256,8 +262,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 3.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-G' }],
     },
-    plotStatus: { dag_no: '0707', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0707', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000007',
@@ -291,8 +298,9 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       remaining_area: 16.0,
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-H' }],
     },
-    plotStatus: { dag_no: '0808', mortgaged: false, court_case: false },
+    plotStatus: { dag_no: '0808', mortgaged: false, court_case: false, acquisition_status: 'not_reported' },
     deeds: [
       {
         id: 'd0000000-0000-0000-0000-000000000008',

@@ -11,6 +11,12 @@
 export type LandType = 'normal' | 'khas';
 export type MutationStatus = 'none' | 'pending' | 'done';
 export type DeedStatus = 'active' | 'cancelled';
+export type AcquisitionStatus = 'not_reported' | 'notice' | 'acquired' | 'unknown';
+export interface MutationEvent {
+  date: string;
+  status: MutationStatus;
+  reference: string;
+}
 
 /**
  * 1. Khatian (খতিয়ান রেকর্ড)
@@ -26,6 +32,7 @@ export interface KhatianRecord {
   remaining_area: number;
   land_type: LandType;
   mutation_status: MutationStatus;
+  mutation_history?: MutationEvent[];
   created_at?: string;
   updated_at?: string;
 }
@@ -38,6 +45,7 @@ export interface PlotStatusRecord {
   dag_no: string;
   mortgaged: boolean;
   court_case: boolean;
+  acquisition_status?: AcquisitionStatus;
   updated_at?: string;
 }
 

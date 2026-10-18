@@ -31,3 +31,11 @@ Feature commit: a2618df. Follow-up report/preservation refinement committed sepa
 - Restored bilingual Print deed and QR receipt action via window.print in registration success.
 - `node tests/presentation-tests.test.mjs`: 3 tests passed (all captions checked against fixture facts, true/false/unknown flag behavior, known-risk plus missing-evidence combination). Direct execution avoids the sandbox EPERM affecting Node test runner child process isolation.
 - Focused ESLint passed. Root owns integrated types/build/browser verification and print CSS.
+
+## Plain-language P5 result follow-up
+- Primary status uses everyday Bangla and English, including the instruction to pause and check before paying for red results.
+- Every known issue has a plain title, short meaning and specific next action. Deed integrity mismatch reads 'দলিলের তথ্য মিলছে না' / 'Deed details do not match'.
+- BuyerChecklist presents exactly five buyer questions: seller/owner, mutation/history, court, khas land and acquisition. Unknown acquisition and missing mutation history never receive clear status. Known risks remain visible alongside incomplete evidence.
+- Record details show names, localized dates and validated mutation history. Demo history is explicitly synthetic. Hashes, raw engine descriptions/codes and secondary checks are inside a closed native technical details element.
+- Added acquisition/mutation-history issue translations and pure checklist helpers; no domain schemas or fixtures edited.
+- `node tests/presentation-tests.test.mjs`: 7 tests passed. Targeted ESLint passed. Isolated TypeScript still has only the known root-owned restoreSyntheticDeed missing export; parent owns final integrated build/browser tests.
