@@ -13,6 +13,7 @@ export interface VerificationServiceResponse {
   plotData: CompletePlotData | null;
   result: VerificationResult | null;
   error?: string;
+  errorCode?: 'INVALID_INPUT';
 }
 
 /**
@@ -27,7 +28,7 @@ export async function executeLandVerification(params: {
   sellerName?: string;
 }): Promise<VerificationServiceResponse> {
   const source = isSupabaseConfigured() ? 'supabase' : 'demo';
-  const invalid = (): VerificationServiceResponse => ({ success: false, source, plotData: null, result: null, error: 'Invalid search input.' });
+  const invalid = (): VerificationServiceResponse => ({ success: false, source, plotData: null, result: null, error: 'Invalid search input.', errorCode: 'INVALID_INPUT' });
   if (!params || typeof params !== 'object' || typeof params.dagNo !== 'string' || params.dagNo.length > 256 ||
     (params.deedNo !== undefined && (typeof params.deedNo !== 'string' || params.deedNo.length > 256 || /[|\u0000-\u001f\u007f]/.test(params.deedNo))) ||
     (params.sellerName !== undefined && (typeof params.sellerName !== 'string' || params.sellerName.length > 256)) ||

@@ -16,7 +16,8 @@
     "test:receipts": "tsx tests/receipt-tests.test.ts",
     "test:presentation": "node tests/presentation-tests.test.mjs",
     "test:motion": "node tests/motion-tests.test.mjs",
-    "test": "npm run test:cases && npm run test:unit && npm run test:reliability && npm run test:p5 && npm run test:receipts && npm run test:presentation && npm run test:motion"
+    "test:hardening": "tsx tests/hardening-tests.test.ts",
+    "test": "npm run test:cases && npm run test:unit && npm run test:reliability && npm run test:p5 && npm run test:receipts && npm run test:presentation && npm run test:motion && npm run test:hardening"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

@@ -64,7 +64,7 @@ export function normalizeDagNo(input: string): string {
   if (typeof input !== 'string' || !input) return '';
   // 1. Convert Bangla numerals to ASCII
   const ascii = normalizeBanglaDigits(input.trim());
-  // 2. Remove characters that are not digits, letters, or hyphens/slashes
+  // 2. Reject unsupported characters instead of silently changing the identifier.
   return /^[a-zA-Z0-9\-_/]+$/.test(ascii) ? ascii : '';
 }
 

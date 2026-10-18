@@ -4,6 +4,7 @@ import { useRef, useState, type MouseEvent } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import { useGuideMotion } from './useGuideMotion';
+import { BuyerHelp } from './BuyerHelp';
 
 const checks = [
   {
@@ -153,6 +154,7 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
       <p className="text-sm text-slate-600">{t('কাগজ জোগাড় মানে যাচাই শেষ নয়। এটি আপনার নিজের দেওয়া চিহ্ন, জমি নিরাপদ হওয়ার সনদ নয়। পাতা রিলোড করলে চিহ্ন মুছে যাবে।', 'Collecting papers does not mean verification is complete. These are your own marks, not a land clearance certificate. Reloading clears the marks.')}</p>
       <div className="flex flex-wrap gap-3 print:hidden"><button type="button" onClick={() => window.print()} className="min-h-11 rounded-xl border border-slate-300 px-4 py-2 font-semibold">{t('তালিকা প্রিন্ট করুন', 'Print checklist')}</button><button type="button" onClick={() => setPapers({})} className="min-h-11 rounded-xl border border-slate-300 px-4 py-2">{t('চিহ্ন মুছুন', 'Clear marks')}</button></div>
     </section>
+    <BuyerHelp />
     <details className="rounded-2xl border border-slate-200 bg-white p-5 text-sm leading-7">
       <summary className="min-h-11 cursor-pointer font-bold">{t('আরও কিছু কাগজ মিলিয়ে নিন', 'Check supporting documents')}</summary>
       <div className="pt-4 grid gap-5 sm:grid-cols-2">

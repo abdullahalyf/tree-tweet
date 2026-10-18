@@ -154,7 +154,8 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
 .guide-check[data-paper-status="mismatch"] { border-color: #bf8274; background: #fffaf7; }
 .guide-instruction-label { font-size: 13px; color: #725239; font-weight: 750; margin-bottom: 5px; }
 .guide-step-navigation { border-top: 1px solid #e9e8df; padding-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
-.guide-next-link { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; color: #234e38; font-weight: 700; font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
+.guide-next-link { display: inline-flex; gap: 16px; align-items: center; justify-content: space-between; min-height: 48px; padding: 12px 16px; border: 1px solid #234e38; border-radius: 12px; background: var(--forest); color: var(--cream); font-weight: 700; font-size: 14px; text-decoration: none; transition: background-color var(--guide-fast), box-shadow var(--guide-fast), transform var(--guide-fast); }
+.guide-next-link:hover { background: #163c28; box-shadow: 0 4px 10px #234e381f; }
 .guide-next-link > span { transition: transform var(--guide-fast); }
 .guide-next-link:hover > span { transform: translateX(4px); }
 .guide-back-link { display: inline-flex; align-items: center; min-height: 44px; color: #5e6e63; font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
@@ -245,6 +246,7 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
   .guide-topic-link { align-items: center; padding: 14px 16px; }
   .guide-topic-number { width: 32px; height: 32px; }
   .guide-how ol { gap: 16px; }
+  .guide-next-link { width: 100%; }
   .rural-scene { min-height: 250px; margin: 0 -7px -7px; border-radius: 14px; }
   .rural-scene figcaption { inset: auto 18px 18px; }
   .rural-scene figcaption strong { font-size: 24px; }

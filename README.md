@@ -57,6 +57,8 @@ npm run test:reliability
 npm run test:p5
 npm run test:receipts
 npm run test:presentation
+npm run test:motion        # scroll scheduling, pause, preference changes and cleanup
+npm run test:hardening     # malformed identifiers, runtime inputs and receipt conflicts
 npm run typecheck
 npm run lint
 npm run build
