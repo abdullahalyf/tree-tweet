@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { DEMO_SCENARIOS } from '../src/lib/demo/fixtures';
 import { runLandVerification } from '../src/lib/verification/rules';
 import { computeDeedHash } from '../src/lib/verification/hash';
-import type { DeedRecord } from '../src/lib/db/schema';
+import type { AcquisitionStatus, DeedRecord } from '../src/lib/db/schema';
 
 // Explicit synthetic metadata isolates each safety test from missing-evidence warnings.
 function plot() {
@@ -11,7 +11,7 @@ function plot() {
   return {
     ...sample,
     khatian: { ...sample.khatian, mutation_history: [{ date: '2024-01-15', status: 'done' as const, reference: 'SYNTHETIC-P5-HISTORY' }] },
-    plotStatus: { ...sample.plotStatus, acquisition_status: 'not_reported' },
+    plotStatus: { ...sample.plotStatus, acquisition_status: 'not_reported' as AcquisitionStatus },
   };
 }
 

@@ -12,8 +12,9 @@
     "test:cases": "tsx scripts/verify-cases.mjs",
     "test:unit": "tsx tests/unit-tests.test.ts && tsx tests/phase4-tests.test.ts",
     "test:reliability": "tsx tests/reliability-tests.test.ts",
+    "test:p5": "tsx tests/p5-tests.test.ts",
     "test:presentation": "node tests/presentation-tests.test.mjs",
-    "test": "npm run test:cases && npm run test:unit && npm run test:reliability && npm run test:presentation"
+    "test": "npm run test:cases && npm run test:unit && npm run test:reliability && npm run test:p5 && npm run test:presentation"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
