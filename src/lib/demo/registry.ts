@@ -269,13 +269,20 @@ export async function restoreSyntheticDeed(value: unknown): Promise<boolean> {
   if (!value || typeof value !== 'object') return false;
   const deed = value as DeedRecord;
   if (typeof deed.deed_no !== 'string' || typeof deed.hash !== 'string' || !/^[a-f0-9]{64}$/i.test(deed.hash) || deed.status !== 'active') return false;
-  // Baseline receipts cannot be replaced by browser storage.
-  if (DEMO_SCENARIOS.some((scenario) => scenario.deeds.some((item) => item.deed_no === deed.deed_no))) return false;
-  if (findDeedByDeedNo(deed.deed_no)) return true;
-  const restored = await registerSyntheticDeed({
+  // Validate before duplicate handling: browser storage remains untrusted even
+  // when an identifier is already present. Stateless validation cannot insert data.
+  const input = {
     deed_no: deed.deed_no, dag_no: deed.dag_no, seller: deed.seller, buyer: deed.buyer,
     area: deed.area, date: deed.date, prev_hash: deed.prev_hash,
-  });
+  };
+  const checked = await registerSyntheticDeed(input, { persist: false });
+  if (!checked.success || !checked.deed) return false;
+  const existing = findDeedByDeedNo(checked.deed.deed_no);
+  if (existing) {
+    return (['deed_no', 'dag_no', 'seller', 'buyer', 'area', 'date', 'prev_hash'] as const)
+      .every(field => existing[field] === checked.deed![field]) && existing.hash === deed.hash;
+  }
+  const restored = await registerSyntheticDeed(input);
   if (!restored.success || !restored.deed) return false;
   // Keep the original receipt hash so tampering is still detected by the engine.
   restored.deed.hash = deed.hash;

@@ -26,8 +26,15 @@ export async function executeLandVerification(params: {
   proposedArea?: number;
   sellerName?: string;
 }): Promise<VerificationServiceResponse> {
+  const source = isSupabaseConfigured() ? 'supabase' : 'demo';
+  const invalid = (): VerificationServiceResponse => ({ success: false, source, plotData: null, result: null, error: 'Invalid search input.' });
+  if (!params || typeof params !== 'object' || typeof params.dagNo !== 'string' || params.dagNo.length > 256 ||
+    (params.deedNo !== undefined && (typeof params.deedNo !== 'string' || params.deedNo.length > 256 || /[|\u0000-\u001f\u007f]/.test(params.deedNo))) ||
+    (params.sellerName !== undefined && (typeof params.sellerName !== 'string' || params.sellerName.length > 256)) ||
+    (params.proposedArea !== undefined && (typeof params.proposedArea !== 'number' || !Number.isFinite(params.proposedArea) || params.proposedArea <= 0))) return invalid();
   const dagNo = normalizeDagNo(params.dagNo || '');
   const deedNo = params.deedNo ? normalizeDeedNo(params.deedNo) : undefined;
+  if ((params.dagNo.trim() && !dagNo) || (!dagNo && !deedNo)) return invalid();
   const { proposedArea, sellerName } = params;
 
   // 1. If Supabase is configured, attempt remote query

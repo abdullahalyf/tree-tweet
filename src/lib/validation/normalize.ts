@@ -58,14 +58,14 @@ export function formatToBanglaDigits(value: string | number): string {
  * 1. Converts Bangla digits to ASCII digits.
  * 2. Trims leading and trailing whitespace.
  * 3. PRESERVES leading zeros (e.g. '০১০১' -> '0101', '0042' -> '0042').
- * 4. Removes non-alphanumeric characters while keeping hyphens or slashes if any.
+ * 4. Rejects unsupported characters rather than aliasing a different identifier.
  */
 export function normalizeDagNo(input: string): string {
-  if (!input) return '';
+  if (typeof input !== 'string' || !input) return '';
   // 1. Convert Bangla numerals to ASCII
   const ascii = normalizeBanglaDigits(input.trim());
   // 2. Remove characters that are not digits, letters, or hyphens/slashes
-  return ascii.replace(/[^a-zA-Z0-9\-_/]/g, '');
+  return /^[a-zA-Z0-9\-_/]+$/.test(ascii) ? ascii : '';
 }
 
 /**
