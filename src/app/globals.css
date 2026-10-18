@@ -31,6 +31,8 @@ button:enabled { cursor: pointer; }
 button:disabled { cursor: wait; }
 :where(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid #975b35; outline-offset: 3px; }
 ::selection { background: #d8e7bd; color: #172d21; }
+.skip-link { position: fixed; top: 10px; left: 12px; z-index: 100; padding: 10px 16px; border-radius: 8px; background: #fffef9; color: #172d21; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); outline: 3px solid #975b35; }
 .workspace-header { background: #fffef9f5; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 40; backdrop-filter: blur(14px); }
 .workspace-topbar, .workspace-nav-row { max-width: 1152px; padding: 0 24px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .workspace-topbar { min-height: 82px; }
@@ -116,4 +118,12 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .search-panel .grid > button:hover { transform: none; }
+}
+
+@media print {
+  .workspace-header, .skip-link, main button, footer { display: none !important; }
+  body, main, .workspace-card { color: #000 !important; background: #fff !important; }
+  main { max-width: none !important; padding: 0 !important; }
+  .workspace-card { box-shadow: none; border-color: #aaa; break-inside: avoid; }
+  code { overflow-wrap: anywhere; }
 }

@@ -93,6 +93,7 @@ function VerificationWorkspace() {
 
   useEffect(() => {
     if (hasSearched && !isLoading) {
+      resultsRef.current?.focus({ preventScroll: true });
       resultsRef.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     }
   }, [hasSearched, isLoading]);
@@ -123,7 +124,7 @@ function VerificationWorkspace() {
     <div className="min-h-screen flex flex-col font-sans tree-workspace">
       <a href="#main-content" className="skip-link">{t('মূল বিষয়বস্তুতে যান', 'Skip to main content')}</a>
       <Navbar activeTab={activeTab} onTabChange={changeTab} />
-      <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+      <main id="main-content" tabIndex={-1} className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
         {activeTab === 'search' && (
           <div className="space-y-8 animate-fade-in">
             {!hasSearched && <WorkspaceIntro />}
@@ -134,7 +135,7 @@ function VerificationWorkspace() {
                 <p className="text-sm font-semibold">{t('রেকর্ড সংগ্রহ ও ঝুঁকির পরীক্ষাগুলো চালানো হচ্ছে…', 'Retrieving records and running risk checks…')}</p>
               </div>
             )}
-            <div ref={resultsRef} id="results-view" className="scroll-mt-32" aria-busy={isLoading}>
+            <div ref={resultsRef} id="results-view" tabIndex={-1} role="region" aria-label={t('অনুসন্ধানের ফলাফল', 'Search results')} aria-live="polite" className="scroll-mt-32" aria-busy={isLoading}>
               {serviceError && !isLoading && (
                 <div role="alert" className="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-sm space-y-3">
                   <p>{t('রেকর্ড যাচাই করা যায়নি। সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।', 'Records could not be checked. Check your connection and try again.')}</p>

@@ -27,6 +27,7 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
   const [registeredDeed, setRegisteredDeed] = useState<DeedRecord | null>(null);
   const [canonicalPayload, setCanonicalPayload] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
 
   // Quick-fill sample synthetic deed for judges
   const handleQuickFill = () => {
@@ -96,6 +97,7 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
         setRegisteredDeed(response.deed);
         setCanonicalPayload(response.canonicalPayload || null);
         setQrDataUrl(response.qrDataUrl || null);
+        setVerificationUrl(response.verificationUrl || null);
 
         // Safe client persistence across server restarts / browser sessions
         if (typeof window !== 'undefined') {
@@ -122,6 +124,7 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
     setRegisteredDeed(null);
     setCanonicalPayload(null);
     setQrDataUrl(null);
+    setVerificationUrl(null);
     setErrorMessage(null);
     handleQuickFill();
   };
@@ -162,7 +165,8 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
       {canonicalPayload && <details className="rounded-xl border p-3"><summary className="cursor-pointer text-sm font-semibold">{t('হ্যাশ তৈরির ক্যানোনিকাল তথ্য', 'Canonical fingerprint input')}</summary><code className="mt-3 block break-all text-xs">{canonicalPayload}</code></details>}
       {qrDataUrl && <div className="space-y-2"><h4 className="text-sm font-bold">{t('ডেমো রেকর্ডের QR কোড', 'Demo record QR code')}</h4>{/* Generated data URL from the registration action. */}{/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={qrDataUrl} width={220} height={220} alt={t('নিবন্ধিত ডেমো দলিলের অনুসন্ধান QR কোড', 'Lookup QR code for the registered synthetic deed')} /><a href={qrDataUrl} download={`${registeredDeed.deed_no}.png`} className="inline-block rounded-xl border px-4 py-2 text-sm">{t('QR কোড ডাউনলোড করুন', 'Download QR code')}</a></div>}
-      <p className="text-xs text-slate-600">{t('ফিঙ্গারপ্রিন্ট ডিজিটাল তথ্যের অখণ্ডতা পরীক্ষায় সাহায্য করে; এটি আইনি মালিকানার প্রমাণ নয়।', 'A fingerprint helps check digital data integrity; it does not prove legal ownership.')}</p>
+      {verificationUrl && <div className="space-y-2"><h4 className="text-sm font-bold">{t('এই ব্রাউজারে রেকর্ডটি খোলার লিংক', 'Record link for this browser')}</h4><a href={verificationUrl} className="block break-all rounded-xl border p-3 text-sm text-emerald-800 underline">{verificationUrl}</a></div>}
+      <p className="text-sm text-slate-600">{t('এই ডেমো রেকর্ড এই ব্রাউজারেই রাখা হয়। অন্য ফোনে QR খুললে রেকর্ড নাও পাওয়া যেতে পারে। ফিঙ্গারপ্রিন্ট আইনি মালিকানার প্রমাণ নয়।', 'This demo receipt is saved in this browser. The QR may not find it on another phone. The fingerprint does not prove legal ownership.')}</p>
       <div className="flex flex-wrap gap-3"><button type="button" onClick={() => window.print()} className="rounded-xl border px-4 py-3 text-sm">{t('দলিল ও QR রসিদ প্রিন্ট করুন', 'Print deed and QR receipt')}</button><button onClick={() => onVerifyDeed(registeredDeed.dag_no, registeredDeed.deed_no)} className="rounded-xl bg-emerald-700 px-4 py-3 text-sm font-bold text-white">{t('এই দলিল যাচাই করুন', 'Check this deed')}</button><button onClick={handleReset} className="rounded-xl border px-4 py-3 text-sm">{t('আরেকটি দলিল তৈরি করুন', 'Create another deed')}</button></div>
     </CardBody></Card>}
   </div>;
