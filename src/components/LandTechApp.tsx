@@ -21,6 +21,7 @@ import { normalizeDagNo, normalizeDeedNo } from '@/lib/validation/normalize';
 function VerificationWorkspace() {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<ActiveNavTab>('guide');
+  const [motionPaused, setMotionPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentDagNo, setCurrentDagNo] = useState('');
@@ -100,9 +101,9 @@ function VerificationWorkspace() {
   useEffect(() => {
     if (hasSearched && !isLoading) {
       resultsRef.current?.focus({ preventScroll: true });
-      resultsRef.current?.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+      resultsRef.current?.scrollIntoView({ block: 'start', behavior: motionPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     }
-  }, [hasSearched, isLoading]);
+  }, [hasSearched, isLoading, motionPaused]);
 
   const changeTab = (tab: ActiveNavTab) => {
     if (tab !== 'search') {
@@ -117,6 +118,11 @@ function VerificationWorkspace() {
       url.searchParams.delete('deed');
     } else url.searchParams.set('view', tab);
     window.history.replaceState(null, '', url);
+    window.requestAnimationFrame(() => {
+      const main = document.getElementById('main-content');
+      main?.focus({ preventScroll: true });
+      main?.scrollIntoView({ block: 'start', behavior: motionPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    });
   };
 
   const handleReset = () => {
@@ -135,12 +141,12 @@ function VerificationWorkspace() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans tree-workspace">
+    <div className="min-h-screen flex flex-col font-sans tree-workspace" data-motion={motionPaused ? 'paused' : 'active'}>
       <AmbientParticles />
       <a href="#main-content" className="skip-link">{t('মূল বিষয়বস্তুতে যান', 'Skip to main content')}</a>
       <Navbar activeTab={activeTab} onTabChange={changeTab} />
-      <main id="main-content" tabIndex={-1} className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
-        {activeTab === 'guide' && <BuyerGuide onTryDemo={() => changeTab('search')} />}
+      <main id="main-content" tabIndex={-1} className="scroll-mt-48 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+        {activeTab === 'guide' && <BuyerGuide onTryDemo={() => changeTab('search')} motionPaused={motionPaused} onToggleMotion={() => setMotionPaused(previous => !previous)} />}
         {activeTab === 'search' && (
           <div className="space-y-8 animate-fade-in">
             {!hasSearched && <WorkspaceIntro />}
