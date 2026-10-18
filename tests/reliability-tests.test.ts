@@ -8,6 +8,7 @@ import { computeDeedHash, verifyDeedIntegrity } from '../src/lib/verification/ha
 import { validateSearchQuery } from '../src/lib/validation/schemas';
 import { parseBanglaNumber } from '../src/lib/validation/normalize';
 import { executeLandVerification } from '../src/lib/services/landService';
+import type { DeedRecord, PlotStatusRecord } from '../src/lib/db/schema';
 
 const baseline = JSON.stringify(DEMO_SCENARIOS);
 const clean = () => structuredClone(DEMO_SCENARIOS[0]);
@@ -74,6 +75,24 @@ test('Reliability: invalid areas are rejected at boundaries and by the engine', 
     await t.test(`invalid remaining area ${remaining} cannot be green`, async () => {
       const plot = clean();
       plot.khatian.remaining_area = remaining;
+      assert.notEqual((await runLandVerification(plot)).overallStatus, 'GREEN');
+    });
+  }
+});
+
+test('Reliability: partial and invalid status records remain conservative', async (t) => {
+  await t.test('missing mortgage evidence does not hide a known court dispute', async () => {
+    const result = await runLandVerification({
+      ...clean(),
+      plotStatus: { dag_no: '0101', court_case: true } as PlotStatusRecord,
+    });
+    assert.equal(result.overallStatus, 'RED');
+    assert.ok(result.issues.some(issue => issue.severity === 'CRITICAL'));
+  });
+  for (const status of ['unknown', null]) {
+    await t.test(`unsupported deed status ${status} cannot receive GREEN`, async () => {
+      const plot = clean();
+      plot.deeds[0] = { ...plot.deeds[0], status } as unknown as DeedRecord;
       assert.notEqual((await runLandVerification(plot)).overallStatus, 'GREEN');
     });
   }
