@@ -1,10 +1,11 @@
 'use client';
 
 import { useRef, useState, type MouseEvent } from 'react';
-import Image from 'next/image';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import { useGuideMotion } from './useGuideMotion';
 import { BuyerHelp } from './BuyerHelp';
+import { BuyerHero } from './BuyerHero';
+import { BuyerPortal } from './BuyerPortal';
 
 const checks = [
   {
@@ -41,14 +42,6 @@ const checks = [
 
 type PaperStatus = 'missing' | 'collected' | 'mismatch';
 
-const topics = [
-  ['মালিকের পরিচয়', 'Owner identity', 'বিক্রেতা ও জমির কাগজ মিলিয়ে নিন', 'Compare the seller and land papers'],
-  ['নামজারির ইতিহাস', 'Mutation history', 'এখনকার ও আগের নামজারি দেখুন', 'Check current and earlier mutation papers'],
-  ['মামলার খোঁজ', 'Court cases', 'মামলা বা নিষেধাজ্ঞার খোঁজ নিন', 'Look for cases or court orders'],
-  ['খাস জমির খোঁজ', 'Khas land', 'জমি সরকারি খাস কি না জানুন', 'Ask whether the land is government khas'],
-  ['অধিগ্রহণের খোঁজ', 'Acquisition', 'সরকারি নোটিশ আছে কি না দেখুন', 'Check for acquisition notices'],
-] as const;
-
 export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
   onTryDemo: () => void;
   motionPaused: boolean;
@@ -71,26 +64,11 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
     target.scrollIntoView({ block: 'start', behavior: motionPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
 
-  return <div ref={guideRef} className="space-y-6 buyer-guide">
+  return <div ref={guideRef} className="buyer-guide">
     <div className="guide-reading-line print:hidden" aria-hidden="true"><span /></div>
-    <section id="guide-start" tabIndex={-1} className="guide-welcome guide-destination" aria-labelledby="buyer-guide-title">
-      <div className="guide-welcome-copy">
-        <p className="guide-eyebrow"><span aria-hidden="true">✦</span> {t('জমি কেনার আগে · আপনার সহায়িকা', 'Your guide · before buying land')}</p>
-        <h1 id="buyer-guide-title">{t('জমি কিনবেন?\nশুরু করুন এখান থেকে।', 'Buying land?\nStart right here.')}</h1>
-        <p className="guide-lead">{t('কোন কাগজ লাগবে, কোথায় খোঁজ নেবেন আর অমিল পেলে কী করবেন—সহজ পাঁচটি ধাপে জানুন।', 'Learn which papers to collect, where to check them and what to do if they differ, in five simple steps.')}</p>
-        <div className="guide-welcome-actions print:hidden">
-          <a href="#guide-papers" onClick={goToSection} className="guide-start-button">{t('শুরু করি', 'Let’s begin')} <span aria-hidden="true">→</span></a>
-          <button type="button" onClick={onToggleMotion} aria-pressed={motionPaused} className="guide-motion-toggle">{motionPaused ? t('অ্যানিমেশন চালু করুন', 'Turn animations on') : t('অ্যানিমেশন বন্ধ করুন', 'Turn animations off')}</button>
-        </div>
-        <p className="guide-intro-boundary">{t('আসল কাগজ আপলোড লাগে না। এখানে সরকারি রেকর্ড এনে যাচাই করা হয় না।', 'No private document uploads. We do not retrieve or verify government records here.')}</p>
-      </div>
-      <figure className="rural-scene" aria-label={t('বাংলার গ্রামের প্রতীকী দৃশ্য', 'An illustrative Bengali village landscape')}>
-        <div className="rural-parallax"><div className="rural-camera"><Image src="/images/village-rice-fields.webp" alt={t('সবুজ ধানক্ষেতের আলপথ, তালগাছ ও গ্রামের ঘরবাড়ির প্রতীকী ছবি', 'An illustrative scene of green rice paddies, an earthen path, palms and village homes')} fill sizes="(max-width: 640px) 100vw, (max-width: 1023px) 90vw, 50vw" preload className="rural-photo" /></div></div>
-        <svg className="rural-birds" viewBox="0 0 100 35" fill="none" aria-hidden="true"><path d="M4 15q8-9 16 0 8-9 16 0M45 28q6-7 12 0 6-7 12 0M68 8q6-7 12 0 6-7 12 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-        <figcaption><span className="rural-caption-kicker">{t('বাংলার মাটির টানে', 'Rooted in rural Bengal')}</span><strong>{t('গ্রামের জমি।\nপরিবারের ভবিষ্যৎ।', 'Village land.\nA family’s future.')}</strong><span className="rural-scene-note">{t('প্রতীকী গ্রামীণ দৃশ্য', 'Illustrative rural scene')}</span></figcaption>
-      </figure>
-    </section>
-    <section className="guide-how" data-scroll-reveal aria-labelledby="guide-how-title">
+    <BuyerHero motionPaused={motionPaused} onToggleMotion={onToggleMotion} onNavigate={goToSection} />
+    <div className="guide-content space-y-6">
+    <section id="guide-how" tabIndex={-1} className="guide-how guide-destination" data-scroll-reveal aria-labelledby="guide-how-title">
         <h2 id="guide-how-title">{t('যেভাবে ব্যবহার করবেন', 'How to use this guide')}</h2>
         <ol>
           {[
@@ -100,16 +78,7 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
           ].map(([title, body], index) => <li key={index}><span className="guide-how-number" aria-hidden="true">{number(index + 1)}</span><div><h3>{title}</h3><p>{body}</p></div></li>)}
         </ol>
     </section>
-    <nav id="guide-topics" tabIndex={-1} data-scroll-reveal aria-labelledby="guide-topics-title" className="guide-topics guide-destination print:hidden">
-      <div className="guide-section-heading"><h2 id="guide-topics-title">{t('কোন বিষয়টি দেখতে চান?', 'What would you like to check?')}</h2><p>{t('বিষয়ে চাপ দিন, সেই ধাপে চলে যান।', 'Choose a topic to go straight to that step.')}</p></div>
-      <div className="guide-topic-grid">
-        {checks.map((check, index) => <a key={check.id} href={`#check-${check.id}`} onClick={goToSection} className="guide-topic-link" style={{ animationDelay: `${index * 55}ms` }}>
-          <span className="guide-topic-number" aria-hidden="true">{number(index + 1)}</span>
-          <span><strong>{t(topics[index][0], topics[index][1])}</strong><small>{t(topics[index][2], topics[index][3])}</small></span>
-          <span className="guide-topic-arrow" aria-hidden="true">↗</span>
-        </a>)}
-      </div>
-    </nav>
+    <BuyerPortal onNavigate={goToSection} />
     <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 space-y-2">
       <p className="font-bold">{t('সরকারি সেবার পথ দেখাই; সরকারি রেকর্ড এখানে আনা হয় না।', 'We guide you to official services; we do not retrieve government records here.')}</p>
       <p>{t('TreeTweet একটি স্বাধীন সহায়ক প্রকল্প, সরকারি ওয়েবসাইট নয়। বোতাম চাপলে বাইরের সরকারি সাইট খুলবে; সেখানে নিবন্ধন বা আবেদন লাগতে পারে।', 'TreeTweet is an independent guidance project, not a government website. Buttons open external official sites, which may require registration or an application.')}</p>
@@ -135,7 +104,7 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
         {papers[check.id] === 'collected' && <p className="guide-mark-feedback" role="status"><span aria-hidden="true">✓</span> {t('কাগজ পাওয়ার চিহ্ন রাখা হয়েছে। এখন তথ্য মিলিয়ে দেখুন।', 'Marked as collected. Now compare the details.')}</p>}
         {papers[check.id] === 'mismatch' && <p className="guide-mark-feedback guide-mark-warning" role="status">{t('অমিল থাকলে টাকা দেওয়ার আগে সংশ্লিষ্ট অফিসে সাহায্য নিন।', 'If details differ, ask the relevant office for help before paying.')}</p>}
         <div className="guide-step-navigation print:hidden">
-          <a href={index < checks.length - 1 ? `#check-${checks[index + 1].id}` : '#preparation'} onClick={goToSection} className="guide-next-link">{index < checks.length - 1 ? t(`পরের ধাপ: ${topics[index + 1][0]}`, `Next: ${topics[index + 1][1]}`) : t('প্রস্তুতির তালিকা দেখুন', 'See your preparation checklist')} <span aria-hidden="true">→</span></a>
+          <a href={index < checks.length - 1 ? `#check-${checks[index + 1].id}` : '#preparation'} onClick={goToSection} className="guide-next-link">{index < checks.length - 1 ? t(`পরের ধাপ: ${checks[index + 1].title[0]}`, `Next: ${checks[index + 1].title[1]}`) : t('প্রস্তুতির তালিকা দেখুন', 'See your preparation checklist')} <span aria-hidden="true">→</span></a>
           <a href="#guide-topics" onClick={goToSection} className="guide-back-link">{t('সব বিষয় ↑', 'All topics ↑')}</a>
         </div>
       </section>)}
@@ -175,5 +144,6 @@ export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
       </div>
     </details>
     <div className="border-t border-slate-200 pt-5 print:hidden"><p className="text-sm text-slate-600 mb-3">{t('নমুনা দিয়ে বুঝে দেখতে চান? বানানো রেকর্ডে ঝুঁকি পরীক্ষার উদাহরণ আছে।', 'Want to explore an example? Try risk checks using made-up sample records.')}</p><button type="button" onClick={onTryDemo} className="min-h-11 rounded-xl border border-emerald-300 bg-white px-4 py-2 font-semibold text-emerald-900">{t('নমুনা যাচাই দেখুন', 'Try the sample checker')}</button></div>
+    </div>
   </div>;
 }

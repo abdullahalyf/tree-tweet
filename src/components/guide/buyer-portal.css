@@ -1,0 +1,77 @@
+.guide-content { width: 100%; max-width: 1152px; margin-inline: auto; padding: 24px; }
+
+.buyer-portal {
+  padding: clamp(20px, 3vw, 36px);
+  border: 1px solid #dbe5db;
+  border-radius: 24px;
+  background: #f4f7f3;
+  color: #234332;
+}
+
+.buyer-portal-heading { max-width: 700px; margin-bottom: 24px; }
+.buyer-portal-kicker { color: #2f6246; font-size: 13px; font-weight: 700; letter-spacing: .035em; }
+.buyer-portal-heading h2 { margin: 7px 0 10px; color: #12633e; font-size: clamp(23px, 2.5vw, 32px); font-weight: 800; line-height: 1.4; text-wrap: balance; }
+.buyer-portal-heading p { margin: 0; font-size: 16px; line-height: 1.75; text-wrap: pretty; }
+.buyer-portal-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 24px; align-items: start; }
+.buyer-portal-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.buyer-portal-card { min-width: 0; overflow: hidden; display: flex; flex-direction: column; border: 1px solid #dce6da; border-radius: 14px; background: #fffef9; box-shadow: 0 3px 9px #1b472109; color: inherit; text-decoration: none; transition: transform 180ms ease-out, box-shadow 180ms ease-out, border-color 180ms ease-out; }
+.buyer-portal-card:hover { transform: translateY(-3px); border-color: #7faa8c; box-shadow: 0 7px 18px #1b472112; }
+.buyer-portal-card:active { transform: translateY(0); }
+.buyer-portal-illustration { width: 100%; height: auto; aspect-ratio: 320 / 126; display: block; flex: none; border-bottom: 1px solid #dce6da; }
+.buyer-portal-card-copy { display: flex; flex: 1; flex-direction: column; align-items: start; padding: 18px 20px 12px; }
+.buyer-portal-card-number { margin-bottom: 5px; color: #4e6a55; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.buyer-portal-card h3 { margin: 0 0 8px; color: #12633e; font-size: 20px; font-weight: 750; line-height: 1.5; text-wrap: balance; }
+.buyer-portal-card p { margin: 0 0 10px; font-size: 16px; line-height: 1.75; text-wrap: pretty; }
+.buyer-portal-card-action { display: flex; min-height: 44px; gap: 14px; align-items: center; justify-content: space-between; width: 100%; margin-top: auto; color: #12633e; font-size: 15px; font-weight: 750; }
+.buyer-portal-card:last-child { grid-column: 1 / -1; display: grid; grid-template-columns: .85fr 1fr; }
+.buyer-portal-card:last-child .buyer-portal-illustration { height: 100%; min-height: 174px; border-bottom: 0; border-right: 1px solid #dce6da; object-fit: cover; }
+.buyer-portal-sidebar { display: grid; gap: 18px; min-width: 0; }
+.buyer-portal-panel { padding: 20px; border: 1px solid #dce6da; border-top: 3px solid #168452; border-radius: 12px; background: #fffef9; }
+.buyer-portal-panel h3 { margin: 0 0 9px; color: #12633e; font-size: 18px; font-weight: 750; line-height: 1.6; text-wrap: balance; }
+.buyer-portal-panel p { margin: 0; font-size: 15px; line-height: 1.8; text-wrap: pretty; }
+.buyer-portal-panel .buyer-portal-small { font-size: 14px; }
+.buyer-portal-preparation { background: #e7f0e4; }
+.buyer-portal-panel-mark { width: 34px; height: 34px; margin-bottom: 10px; display: grid; place-items: center; border-radius: 50%; color: #fffef9; background: #12633e; font-size: 20px; font-weight: 800; }
+.buyer-portal-prep-link { min-height: 48px; display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 16px; padding: 10px 12px; border-radius: 8px; color: #fffef9; background: #12633e; text-decoration: none; font-size: 15px; font-weight: 700; transition: background-color 150ms ease-out; }
+.buyer-portal-prep-link:hover { background: #0d4e31; }
+.buyer-portal-official-links { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.buyer-portal-official-links a { display: flex; min-height: 48px; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 1px solid #dae5d8; border-radius: 8px; color: #175b3c; background: #f3f7f1; text-decoration: none; font-size: 15px; font-weight: 650; transition: background-color 150ms ease-out; }
+.buyer-portal-official-links a:hover { background: #e5efdf; }
+.buyer-portal-help { border-color: #12633e; background: #12633e; color: #fffef9; }
+.buyer-portal-help h3 { color: #fffef9; }
+.buyer-portal-phone { display: flex; min-height: 48px; align-items: center; gap: 14px; width: fit-content; margin: 4px 0 9px; color: #fff2bb; font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+.buyer-portal a:focus-visible { outline: 3px solid #b16e17; outline-offset: 4px; }
+.buyer-portal-card:focus-visible { outline-offset: 3px; }
+
+@media (max-width: 1023px) {
+  .buyer-portal-layout { grid-template-columns: minmax(0, 1fr); }
+  .buyer-portal-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .buyer-portal-help { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+  .guide-content { padding: 20px 16px; }
+  .buyer-portal { padding: 18px 14px; border-radius: 18px; }
+  .buyer-portal-heading { margin-bottom: 20px; }
+  .buyer-portal-layout { gap: 20px; }
+  .buyer-portal-cards, .buyer-portal-sidebar { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .buyer-portal-card:last-child { display: flex; grid-column: auto; }
+  .buyer-portal-card:last-child .buyer-portal-illustration { height: auto; min-height: 0; border-right: 0; border-bottom: 1px solid #dce6da; }
+  .buyer-portal-card-copy { padding: 16px 18px 10px; }
+  .buyer-portal-help { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buyer-portal-card, .buyer-portal-prep-link, .buyer-portal-official-links a { transition: none; }
+  .buyer-portal-card:hover { transform: none; }
+}
+
+[data-motion="paused"] .buyer-portal-card,
+[data-motion="paused"] .buyer-portal-prep-link,
+[data-motion="paused"] .buyer-portal-official-links a { transition: none; }
+[data-motion="paused"] .buyer-portal-card:hover { transform: none; }
+
+@media print {
+  .buyer-portal { display: none; }
+}
+

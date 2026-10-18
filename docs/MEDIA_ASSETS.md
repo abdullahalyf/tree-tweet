@@ -19,3 +19,13 @@ Observed camera-transform changes, parallax changes after scrolling, viewport-en
 Simulated runtime reduced-motion preference at initial load and on change: no scene/reveal motion while reduced, motion resumed when enabled, and stopped again when reduced. This tests the JavaScript branch; native OS preference and assistive-technology conformance remain untested. Simulated missing IntersectionObserver: guide/image/links remained visible, scene stayed static. No physical-device or recorded-video claim is made.
 
 Puku3 reviewed observer/animation/listener cleanup, content fallback, pause and navigation; no blocking source issue found. Production build, typecheck and zero-warning lint passed. Rendered screenshots/evidence are stored locally under ignored `artifacts/rural-*` files.
+
+## Aerial hero asset
+
+Asset: `public/images/aerial-rice-fields.webp` (1600×900, 432884 bytes). Generated using the built-in `image_gen` tool for the wider, portal-style P5 hero. This is an imagined illustrative landscape, not a photograph, map or survey of an identified property. The original PNG remains unchanged in the generating machine's Codex generated-images directory (`exec-3ff40beb-146f-4055-87e6-8d150c45ca8e.png`).
+
+Exact generation prompt:
+
+> Use case: photorealistic-natural. Asset type: wide website hero photograph, landscape 16:9. Primary request: A beautiful realistic aerial drone view straight down onto lush green rice paddies in rural Bangladesh, an irregular patchwork of field boundaries and narrow earthen footpaths, a few palms and tiny rural houses at the far edge, warm natural morning light, rich authentic greens, subtle texture and no dramatic mountain scenery. Composition suitable for a full-width land information website banner with HTML text overlay, uninterrupted field texture across the middle and left. No text, no labels, no logos, no government emblems, no watermark, no people. This is an imagined illustrative landscape, not a documented property.
+
+Prepared with `node scripts/prepare-rural-image.mjs <source-png> aerial-rice-fields.webp 1600` using Sharp WebP quality 80. The optional output accepts only a simple WebP filename and the width is bounded. Production uses this committed image; no image generation runs in the user's browser. The inline SVG illustrations in `BuyerPortal.tsx` are decorative, locally authored artwork, not government logos or records. Earlier browser observations above describe the preceding rural-scene release; they do not certify the new hero until it is separately inspected.
