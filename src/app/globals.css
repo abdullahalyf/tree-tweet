@@ -113,6 +113,7 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
   .workspace-card-header, .workspace-card-body { padding: 18px; }
   .workspace-card-header { flex-wrap: wrap; }
   .search-panel { padding: 20px; }
+  .sample-records .grid > button { min-height: 84px; }
   main { padding-top: 18px; }
   main > .space-y-8 > .workspace-intro + .search-workspace { margin-top: 20px; }
   main :where(input, select, textarea) { font-size: 16px; min-height: 48px; }
