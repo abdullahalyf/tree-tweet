@@ -1,5 +1,5 @@
 'use client';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { DEMO_SCENARIOS } from '@/lib/demo/fixtures';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import { QRScannerModal } from './QRScannerModal';
@@ -18,9 +18,10 @@ export function SearchForm({ onSearch, isLoading, selectedDagNo = '', selectedDe
   const [deed, setDeed] = useState(selectedDeedNo);
   const [invalid, setInvalid] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const dagInput = useRef<HTMLInputElement>(null);
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (!dag.trim() && !deed.trim()) { setInvalid(true); return; }
+    if (!dag.trim() && !deed.trim()) { setInvalid(true); dagInput.current?.focus(); return; }
     setInvalid(false);
     onSearch(dag.trim(), deed.trim() || undefined);
   };
@@ -38,14 +39,14 @@ export function SearchForm({ onSearch, isLoading, selectedDagNo = '', selectedDe
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2"><label htmlFor="dagNoInput" className="block font-semibold text-sm">{t('দাগ নম্বর', 'Plot (dag) number')}</label>
-            <input id="dagNoInput" value={dag} onChange={e => { setDag(e.target.value); setInvalid(false); }} placeholder={t('যেমন: ০১০১ বা 0101', 'Example: 0101 or ০১০১')} disabled={isLoading} className="w-full rounded-xl border border-slate-300 p-3 text-base" />
+            <input ref={dagInput} aria-invalid={invalid} aria-describedby={invalid ? "search-hint search-error" : "search-hint"} id="dagNoInput" value={dag} onChange={e => { setDag(e.target.value); setInvalid(false); }} placeholder={t('যেমন: ০১০১ বা 0101', 'Example: 0101 or ০১০১')} disabled={isLoading} className="w-full rounded-xl border border-slate-300 p-3 text-base" />
           </div>
           <div className="space-y-2"><label htmlFor="deedNoInput" className="block font-semibold text-sm">{t('দলিল নম্বর (ঐচ্ছিক)', 'Deed number (optional)')}</label>
-            <input id="deedNoInput" value={deed} onChange={e => { setDeed(e.target.value); setInvalid(false); }} placeholder="DEED-2024-0001" disabled={isLoading} className="w-full rounded-xl border border-slate-300 p-3 text-base" />
+            <input aria-invalid={invalid} aria-describedby={invalid ? "search-hint search-error" : "search-hint"} id="deedNoInput" value={deed} onChange={e => { setDeed(e.target.value); setInvalid(false); }} placeholder="DEED-2024-0001" disabled={isLoading} className="w-full rounded-xl border border-slate-300 p-3 text-base" />
           </div>
         </div>
-        <p className="text-sm leading-relaxed text-slate-600">{t('দাগ বা দলিল—যেকোনো একটি নম্বর দিন। বাংলা বা ইংরেজি সংখ্যা চলবে। শুরুতে ০ থাকলে লিখুন।', 'Enter a plot or deed number in Bangla or English digits. Keep any leading zeros.')}</p>
-        {invalid && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-rose-800">{t('একটি দাগ অথবা দলিল নম্বর লিখুন।', 'Enter a plot or deed number.')}</p>}
+        <p id="search-hint" className="text-sm leading-relaxed text-slate-600">{t('দাগ বা দলিল—যেকোনো একটি নম্বর দিন। বাংলা বা ইংরেজি সংখ্যা চলবে। শুরুতে ০ থাকলে লিখুন।', 'Enter a plot or deed number in Bangla or English digits. Keep any leading zeros.')}</p>
+        {invalid && <p id="search-error" role="alert" className="rounded-xl bg-rose-50 p-3 text-rose-800">{t('একটি দাগ অথবা দলিল নম্বর লিখুন।', 'Enter a plot or deed number.')}</p>}
         <button type="submit" disabled={isLoading} className="w-full rounded-xl bg-emerald-700 px-5 py-3 text-base font-bold text-white disabled:opacity-60">{isLoading ? t('যাচাই করা হচ্ছে…', 'Checking records…') : t('ঝুঁকি যাচাই করুন', 'Check risks')}</button>
       </form>
       <details className="sample-records space-y-3 border-t pt-2">

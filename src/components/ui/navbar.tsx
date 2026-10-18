@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 
 export type ActiveNavTab = 'guide' | 'search' | 'register' | 'tamper';
@@ -13,6 +13,13 @@ export function Navbar({ activeTab = 'guide', onTabChange }: NavbarProps) {
   const { language, setLanguage, t } = useLanguage();
   const tools = useRef<HTMLDetailsElement>(null);
   const toolSummary = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const dismissOutside = (event: PointerEvent) => {
+      if (tools.current && event.target instanceof Node && !tools.current.contains(event.target)) tools.current.open = false;
+    };
+    document.addEventListener('pointerdown', dismissOutside);
+    return () => document.removeEventListener('pointerdown', dismissOutside);
+  }, []);
   const tabs: { id: ActiveNavTab; bn: string; en: string }[] = [
     { id: 'search', bn: 'নমুনা রেকর্ড যাচাই', en: 'Check sample records' },
     { id: 'register', bn: 'নমুনা দলিল তৈরি', en: 'Create a sample deed' },
@@ -40,7 +47,7 @@ export function Navbar({ activeTab = 'guide', onTabChange }: NavbarProps) {
       <div className="workspace-nav-row">
         {onTabChange && <nav className="workspace-nav" aria-label={t('মূল নেভিগেশন', 'Main navigation')}>
           <button className="primary-workspace-action" type="button" aria-current={activeTab === 'guide' ? 'page' : undefined} onClick={() => { if (tools.current) tools.current.open = false; onTabChange('guide'); }}>{t('জমি কেনার আগে যাচাই', 'Check before you buy')}</button>
-          <details ref={tools} className="demo-tools" onKeyDown={event => { if (event.key === 'Escape' && tools.current?.open) { tools.current.open = false; toolSummary.current?.focus(); } }}>
+          <details ref={tools} className="demo-tools" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.open = false; }} onKeyDown={event => { if (event.key === 'Escape' && tools.current?.open) { event.preventDefault(); event.stopPropagation(); tools.current.open = false; toolSummary.current?.focus(); } }}>
             <summary ref={toolSummary} className={activeTab !== 'guide' ? 'demo-tools-active' : undefined}><span>{t('ডেমো টুল', 'Demo tools')}{activeTab !== 'guide' && <span className="tool-current-label">{activeTab === 'register' ? t('নমুনা দলিল', 'Sample deed') : activeTab === 'search' ? t('নমুনা যাচাই', 'Sample checker') : t('তথ্য বদল পরীক্ষা', 'Data change test')}</span>}</span><span aria-hidden="true">⌄</span></summary>
             <div className="demo-tools-panel" role="group" aria-label={t('নমুনা নিয়ে পরীক্ষা করুন', 'Explore the sample tools')}>
               <p>{t('শুধু নমুনা তথ্য নিয়ে পরীক্ষা', 'For trying sample records only')}</p>
