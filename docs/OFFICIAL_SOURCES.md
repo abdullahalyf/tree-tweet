@@ -2,6 +2,14 @@
 
 Checked / যাচাইয়ের তারিখ: **18 October 2026**. Method: public website reads and search-index evidence restricted to government domains. Applied the `ecc:research-ops` skill. No login, application submission, payment, personal-record query or authenticated API access was performed. This is a source directory and practical checking guide, not legal advice or proof of ownership.
 
+## Browser verification after the initial research
+
+Root opened the actual production pages in Chrome on 18 October 2026. `https://www.land.gov.bd/` rendered its service directory and 16122 help number. Its current revenue-case link points to `http://case.gov.bd/`; the HTTPS destination `https://case.gov.bd/` loaded the Ministry's revenue-case management landing page and hearing calendar. The guide uses that current working destination rather than the initially indexed `case.land.gov.bd` address.
+
+`https://dlrms.land.gov.bd/` rendered survey-khatian, mutation-khatian and mouza-map tabs with geographic search selectors. `https://mutation.land.gov.bd/search-mortgage-info` rendered its public mortgage search form. `https://portal.ldtax.gov.bd/` rendered the land-tax service, login and registration-document guidance. `https://larms.land.gov.bd/` rendered the acquisition-management landing page. These successful browser observations supersede only the initial fetch restrictions below, not the limits on completeness, individual records or API access. No search involving a person or specific real plot was submitted, and no account/OTP/payment was used.
+
+Supporting guidance: compare mortgage/release papers with the lender; tax receipts alone do not establish title; a map does not replace a physical boundary check. The Ministry's [Bhumipedia](https://bhumipedia.land.gov.bd/) indexed fraud notice directs citizens to official Bhumi app guidance for QR checks on dakhila, khatian and DCR documents. TreeTweet's QR tool is explicitly for synthetic sample lookups and rejects foreign-site absolute URLs. No government document authentication is claimed.
+
 ## Public sources and evidence boundaries
 
 | Official destination | What was actually observed | Access and limits |

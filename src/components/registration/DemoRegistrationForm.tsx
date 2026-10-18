@@ -6,7 +6,7 @@ import { Card, CardBody } from '../ui/card';
 import { DeedRecord } from '@/lib/db/schema';
 import { findDeedByDeedNo, restoreSyntheticDeed } from '@/lib/demo/registry';
 import { registerSyntheticDeedAction } from '@/lib/actions/registerDeed';
-import { normalizeDagNo, parseBanglaNumber } from '@/lib/validation/normalize';
+import { normalizeDagNo, normalizeDeedNo, parseBanglaNumber } from '@/lib/validation/normalize';
 
 interface DemoRegistrationFormProps {
   onVerifyDeed: (dagNo: string, deedNo: string) => void;
@@ -47,7 +47,7 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
     setErrorMessage(null);
 
     const normDag = normalizeDagNo(dagNo);
-    const cleanDeedNo = deedNo.trim().toUpperCase();
+    const cleanDeedNo = normalizeDeedNo(deedNo);
     const cleanSeller = seller.trim();
     const cleanBuyer = buyer.trim();
     const numArea = parseBanglaNumber(area);
