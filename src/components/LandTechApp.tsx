@@ -1,10 +1,14 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Navbar, ActiveNavTab } from '@/components/ui/navbar';
 import { WorkspaceIntro } from '@/components/ui/workspaceIntro';
 import { AmbientParticles } from '@/components/ui/ambientParticles';
 import { BuyerGuide } from '@/components/guide/BuyerGuide';
+import { GuideDetail } from '@/components/guide/GuideDetail';
+import { guideTopicTitles, type GuideTopic } from '@/components/guide/guideTopics';
+import { useMotionPreference } from '@/components/guide/useMotionPreference';
 import { SearchForm } from '@/components/search/SearchForm';
 import { VerificationResultView } from '@/components/verification/VerificationResultView';
 import { NoResultView } from '@/components/verification/NoResultView';
@@ -18,10 +22,11 @@ import type { VerificationResult } from '@/lib/verification/types';
 import type { CompletePlotData } from '@/lib/db/schema';
 import { normalizeDagNo, normalizeDeedNo } from '@/lib/validation/normalize';
 
-function VerificationWorkspace() {
+function VerificationWorkspace({ guideTopic }: { guideTopic?: GuideTopic }) {
+  const router = useRouter();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<ActiveNavTab>('guide');
-  const [motionPaused, setMotionPaused] = useState(false);
+  const [motionPaused, setMotionPaused] = useMotionPreference();
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentDagNo, setCurrentDagNo] = useState('');
@@ -32,6 +37,8 @@ function VerificationWorkspace() {
   const [serviceError, setServiceError] = useState<'invalid' | 'unavailable' | null>(null);
   const searchSequence = useRef(0);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => () => { searchSequence.current++; }, []);
 
   const handleSearch = useCallback(async (dagInput: string, deedInput?: string) => {
     const sequence = ++searchSequence.current;
@@ -89,6 +96,7 @@ function VerificationWorkspace() {
   }, []);
 
   useEffect(() => {
+    if (guideTopic) return;
     const params = new URLSearchParams(window.location.search);
     const dag = params.get('dag');
     const deed = params.get('deed');
@@ -102,7 +110,7 @@ function VerificationWorkspace() {
       return () => window.clearTimeout(searchTimer);
     }
     return () => window.clearTimeout(timer);
-  }, [handleSearch]);
+  }, [handleSearch, guideTopic]);
 
   useEffect(() => {
     if (hasSearched && !isLoading) {
@@ -112,6 +120,11 @@ function VerificationWorkspace() {
   }, [hasSearched, isLoading, motionPaused]);
 
   const changeTab = (tab: ActiveNavTab) => {
+    if (guideTopic) {
+      searchSequence.current++;
+      router.push(tab === 'guide' ? '/' : `/?view=${tab}`);
+      return;
+    }
     if (tab !== 'search') {
       searchSequence.current++;
       setIsLoading(false);
@@ -144,6 +157,13 @@ function VerificationWorkspace() {
     url.searchParams.delete('dag');
     url.searchParams.delete('deed');
     window.history.replaceState(null, '', url);
+    // Both result views disappear on reset, and their focused button disappears
+    // with them. Resolve the replacement form after React commits the reset.
+    window.requestAnimationFrame(() => {
+      const input = document.getElementById('dagNoInput');
+      input?.focus({ preventScroll: true });
+      input?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    });
   };
 
   return (
@@ -152,7 +172,9 @@ function VerificationWorkspace() {
       <a href="#main-content" className="skip-link">{t('মূল বিষয়বস্তুতে যান', 'Skip to main content')}</a>
       <Navbar activeTab={activeTab} onTabChange={changeTab} />
       <main id="main-content" tabIndex={-1} className={activeTab === 'guide' ? 'scroll-mt-48 flex-1 w-full' : 'scroll-mt-48 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8'}>
-        {activeTab === 'guide' && <BuyerGuide onTryDemo={() => changeTab('search')} motionPaused={motionPaused} onToggleMotion={() => setMotionPaused(previous => !previous)} />}
+        {activeTab === 'guide' && (guideTopic
+          ? <GuideDetail topic={guideTopic} onTryDemo={() => changeTab('search')} motionPaused={motionPaused} />
+          : <BuyerGuide onTryDemo={() => changeTab('search')} motionPaused={motionPaused} onToggleMotion={() => setMotionPaused(previous => !previous)} />)}
         {activeTab === 'search' && (
           <div className="space-y-8 animate-fade-in">
             {!hasSearched && <WorkspaceIntro />}
@@ -160,13 +182,13 @@ function VerificationWorkspace() {
             {isLoading && (
               <div role="status" className="py-12 flex flex-col items-center justify-center gap-3 text-slate-600">
                 <div aria-hidden="true" className="h-10 w-10 border-4 border-emerald-600/20 border-t-emerald-600 rounded-full animate-spin" />
-                <p className="text-sm font-semibold">{t('রেকর্ড সংগ্রহ ও ঝুঁকির পরীক্ষাগুলো চালানো হচ্ছে…', 'Retrieving records and running risk checks…')}</p>
+                <p className="text-sm font-semibold">{t('নমুনার তথ্য মিলিয়ে দেখা হচ্ছে…', 'Comparing the sample information…')}</p>
               </div>
             )}
             <div ref={resultsRef} id="results-view" tabIndex={-1} role="region" aria-label={t('অনুসন্ধানের ফলাফল', 'Search results')} aria-live="polite" className="scroll-mt-32" aria-busy={isLoading}>
               {serviceError && !isLoading && (
                 <div role="alert" className="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-sm space-y-3">
-                  <p>{serviceError === 'invalid' ? t('নম্বরটি ঠিকভাবে লেখা হয়নি। কাগজ দেখে দাগ ও দলিলের নম্বর আবার লিখুন।', 'A number is not written correctly. Check the papers and re-enter the plot and deed numbers.') : t('রেকর্ড যাচাই করা যায়নি। সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।', 'Records could not be checked. Check your connection and try again.')}</p>
+                  <p>{serviceError === 'invalid' ? t('নমুনার নম্বরটি ঠিক হয়নি। দাগ বা দলিলের নম্বর আবার লিখুন।', 'The sample number is not written correctly. Re-enter the plot or deed number.') : t('রেকর্ড যাচাই করা যায়নি। সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।', 'Records could not be checked. Check your connection and try again.')}</p>
                   {serviceError === 'invalid' ? <button type="button" onClick={() => document.getElementById('dagNoInput')?.focus()} className="px-4 py-2 rounded-xl border border-rose-300 bg-white font-semibold">{t('নম্বর ঠিক করুন', 'Correct the numbers')}</button> : <button type="button" onClick={() => void handleSearch(currentDagNo, currentDeedNo)} className="px-4 py-2 rounded-xl border border-rose-300 bg-white font-semibold">{t('পুনরায় চেষ্টা করুন', 'Try again')}</button>}
                 </div>
               )}
@@ -206,6 +228,6 @@ function VerificationWorkspace() {
   );
 }
 
-export default function LandTechApp() {
-  return <LanguageProvider><VerificationWorkspace /></LanguageProvider>;
+export default function LandTechApp({ guideTopic }: { guideTopic?: GuideTopic } = {}) {
+  return <LanguageProvider pageTitle={guideTopic ? guideTopicTitles[guideTopic] : undefined}><VerificationWorkspace guideTopic={guideTopic} /></LanguageProvider>;
 }
