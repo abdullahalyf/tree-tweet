@@ -11,7 +11,6 @@ const notoSansBengali = Noto_Sans_Bengali({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://treetweet.vercel.app'),
-  title: 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই',
   description: 'জমি কেনার আগে মালিক, নামজারি, মামলা, খাস ও অধিগ্রহণের তথ্য কোথায় যাচাই করবেন—সহজ বাংলা ও ইংরেজিতে সরকারি সেবার নির্দেশিকা।',
   alternates: { canonical: '/' },
   openGraph: {
