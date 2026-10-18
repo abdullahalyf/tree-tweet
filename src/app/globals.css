@@ -43,7 +43,7 @@ button:disabled { cursor: wait; }
 .brand-dot { color: var(--clay); }
 .brand-subtitle { font-size: 11px; color: #5e6e63; margin-top: 4px; }
 .language-switch { display: flex; padding: 3px; border: 1px solid #cbd1c3; border-radius: 10px; gap: 2px; background: #f2f2e9; flex-shrink: 0; }
-.language-switch button { padding: 6px 12px; min-height: 38px; border-radius: 7px; font-size: 12px; font-weight: 650; color: #4b5c50; transition: background .18s, color .18s, box-shadow .18s; }
+.language-switch button { padding: 6px 12px; min-height: 44px; min-width: 44px; border-radius: 7px; font-size: 14px; font-weight: 650; color: #4b5c50; transition: background .18s, color .18s, box-shadow .18s; }
 .language-switch button[aria-pressed="true"] { color: #fffef9; background: var(--forest); box-shadow: 0 2px 4px #172d211a; }
 .workspace-nav-row { min-height: 52px; border-top: 1px solid #efeee6; }
 .workspace-nav { display: flex; gap: 22px; align-self: stretch; }
@@ -58,6 +58,7 @@ button:disabled { cursor: wait; }
 .workspace-eyebrow { color: #725239; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
 .workspace-eyebrow span { padding-right: 5px; }
 .workspace-intro h1 { font-size: clamp(25px, 2.7vw, 36px); line-height: 1.45; font-weight: 750; letter-spacing: -.6px; color: #203d2c; text-wrap: balance; }
+.intro-mobile-title { display: none; }
 .workspace-description { font-size: 13px; color: #5e6e63; margin-top: 10px; max-width: 640px; }
 .workspace-boundary { display: flex; gap: 10px; align-items: flex-start; max-width: 255px; flex-shrink: 0; padding-left: 18px; border-left: 1px solid #c9cebd; font-size: 11px; color: #6c624f; line-height: 1.8; }
 .boundary-icon { display: inline-grid; place-items: center; border: 1px solid #a79575; width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; font-family: Georgia, serif; font-weight: bold; margin-top: 2px; }
@@ -89,28 +90,35 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
 .animate-fade-in { animation: workspace-enter .3s ease-out both; }
 @keyframes workspace-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 640px) {
+  .workspace-header { background: var(--cream); backdrop-filter: none; }
   .workspace-topbar, .workspace-nav-row { padding-left: 16px; padding-right: 16px; }
   .workspace-topbar { min-height: 76px; gap: 10px; }
   .workspace-brand { gap: 9px; }
   .brand-mark { width: 36px; height: 39px; }
   .brand-mark svg { width: 28px; height: 28px; }
   .brand-name { font-size: 21px; }
-  .brand-subtitle { font-size: 10px; }
-  .language-switch button { padding: 6px 9px; min-height: 38px; font-size: 11px; }
+  .brand-subtitle { font-size: 12px; line-height: 1.5; }
+  .language-switch button { padding: 6px 9px; min-height: 44px; font-size: 14px; }
   .workspace-nav-row { flex-wrap: wrap; gap: 0; padding-top: 0; padding-bottom: 8px; }
   .workspace-nav { width: 100%; gap: 8px; justify-content: space-between; }
-  .workspace-nav button { font-size: 12px; gap: 4px; min-height: 46px; }
-  .nav-number { font-size: 9px; }
-  .prototype-label { padding-top: 7px; font-size: 10px; }
+  .workspace-nav button { font-size: 13px; gap: 4px; min-height: 46px; }
+  .nav-number { display: none; }
+  .prototype-label { padding-top: 7px; font-size: 12px; }
   .workspace-intro { display: block; }
-  .workspace-intro h1 { font-size: 25px; line-height: 1.55; }
-  .workspace-description { font-size: 12px; margin-top: 7px; }
-  .workspace-eyebrow { margin-bottom: 6px; font-size: 10px; }
-  .workspace-boundary { margin-top: 12px; max-width: none; border-left: 0; padding: 0; font-size: 10px; gap: 7px; }
-  .boundary-icon { width: 15px; height: 15px; }
+  .workspace-intro h1 { font-size: 23px; line-height: 1.45; }
+  .workspace-description, .workspace-eyebrow, .intro-desktop-title { display: none; }
+  .intro-mobile-title { display: inline; }
+  .workspace-boundary { margin-top: 8px; max-width: none; border-left: 0; padding: 0; font-size: 14px; line-height: 1.65; gap: 7px; }
+  .boundary-icon { width: 17px; height: 17px; }
   .workspace-card-header, .workspace-card-body { padding: 18px; }
   .workspace-card-header { flex-wrap: wrap; }
   .search-panel { padding: 20px; }
+  main { padding-top: 18px; }
+  main > .space-y-8 > .workspace-intro + .search-workspace { margin-top: 20px; }
+  main :where(input, select, textarea) { font-size: 16px; min-height: 48px; }
+  main :where(button, a, summary) { min-height: 44px; }
+  main :where(.text-xs, .text-sm) { font-size: 14px; line-height: 1.65; }
+  main .backdrop-blur-sm { backdrop-filter: none; }
   .search-panel form > .space-y-2 > .flex { align-items: flex-start; gap: 10px; }
   .search-panel form > .space-y-2 > .flex button { flex-shrink: 0; }
   .risk-badge-lg { font-size: 14px; }
