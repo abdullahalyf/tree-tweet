@@ -4,16 +4,20 @@ Updated: 18 October 2026 (Asia/Dhaka). Root integrates all work. This file is a 
 
 ## Current batch: P5 portal and animated hero
 
-All three Puku tasks below are completed. Root has reviewed the integrated local build and is publishing it; commit/PR/deployment identifiers and live checks are pending. No worker is represented as still running after its completed assignment. Detailed local evidence and limitations: [P5_PORTAL_RELEASE.md](P5_PORTAL_RELEASE.md).
+All three Puku tasks below are completed and shipped in [PR7](https://github.com/abdullahalyf/tree-tweet/pull/7), main `8538d304eea3672494cde9c4dac3b50cd99c1385`. Source `044b8e227aa6864095c1cb93259ceb0ebcdada6d` is deployed ready as Vercel `dpl_9ReK1KULnNqXKp6mxEusLr5BFx9r` at https://treetweet.vercel.app/. Both CI jobs passed. Live Bangla390px confirmed the full-width hero, three slides, five correct card anchors, loaded images and no overflow. The acquisition card focused its section at189.8px, below the171.7px header; offscreen hero paused, global pause left zero running animations, and live console had no errors/warnings. No worker is represented as still running after its completed assignment. Detailed evidence and limitations: [P5_PORTAL_RELEASE.md](P5_PORTAL_RELEASE.md).
 
 | Owner | Scope | State | Verification / handoff |
 | --- | --- | --- | --- |
-| Puku hero / review | Full-width, three-slide image hero; manual and automatic controls; motion/accessibility review | Completed; root publishing | Seven-second rotation gate, stable play/pause control, local browser focus/resume/pause checks passed |
-| Puku portal | Five illustrated P5 cards and sidebar; guide/main integration; green footer; local aerial asset and provenance | Completed; root publishing | Targeted zero-warning lint, integrated typecheck/build and local mobile/desktop navigation checks passed |
-| Puku carousel QA | Hero playback lifecycle hook and five tests; timer/focus review | Completed; root publishing | Five new lifecycle tests and full root test command passed; hook timer typing corrected |
-| Root | Integration review, complete verification, Git publication and Vercel deployment | Local checks passed; publication pending | Full tests, typecheck, zero-warning lint and production build passed; local bn390/en320/desktop1440 checked; production evidence pending |
+| Puku hero / review | Full-width, three-slide image hero; manual and automatic controls; motion/accessibility review | Shipped PR7 | Seven-second rotation gate, stable play/pause control, local browser focus/resume/pause checks passed |
+| Puku portal | Five illustrated P5 cards and sidebar; guide/main integration; green footer; local aerial asset and provenance | Shipped PR7 | Targeted zero-warning lint, integrated typecheck/build and local mobile/desktop navigation checks passed |
+| Puku carousel QA | Hero playback lifecycle hook and five tests; timer/focus review | Shipped PR7 | Five new lifecycle tests and full root test command passed; hook timer typing corrected |
+| Root | Integration review, complete verification, Git publication and Vercel deployment | Merged and deployed; live checks passed | Full tests, typecheck, zero-warning lint, build and both CI jobs passed; local bn390/en320/desktop1440 and live390 layout/focus/pause/console checked |
 
 Current hero uses crossfades and camera drift with offscreen/foreground/preference gating. The older side-by-side scene's birds and scroll parallax are historical and are no longer part of the rendered guide. Section-entry reveals and reading progress remain. The two image assets are illustrative; no government records or affiliation were added.
+
+## Follow-up in progress
+
+Hero Puku owns the user's next request: show the existing village image on the hero's right side. Implementation is in progress; root verification/publication are pending. This work is separate from the completed PR7 assignments above. Root should verify desktop/mobile layout, loaded imagery and unchanged slideshow/pause controls before publishing.
 
 ## Previously shipped baseline
 
@@ -36,7 +40,8 @@ If a worker or parent reaches a runtime/quota limit, its filesystem/checkpoint r
 
 ## Next meaningful work
 
-- Root is publishing the completed P5 portal/hero batch and will add commit/deployment/live evidence. Worker implementation tasks are completed; no independent worker is promised to continue after session termination. Older worker branches intentionally remain at their own scoped commits; refresh from main before assigning overlapping implementation again.
+- PR7 is merged, deployed and live-verified. Its worker tasks are completed. The user's subsequent request to put the earlier village image on the hero's right side is assigned to the hero Puku as a separate follow-up batch, currently in progress; it is not included in PR7.
+- No independent worker is promised to continue after session termination. Older worker branches intentionally remain at their own scoped commits; refresh from main before assigning overlapping implementation again.
 - Actual government-record integration requires an authorized data source and access agreement; no worker should fabricate it or scrape private records.
 - Physical-phone camera decoding/permission-pending behavior, native OS reduced motion and actual print/PDF output require hands-on acceptance. Source inspection and simulated preference tests do not establish these results.
 - New user feedback should become a bounded task with owned files, acceptance criteria and saved evidence, rather than an idle or repetitive loop.

@@ -64,6 +64,7 @@ export function BuyerHero({ motionPaused, onToggleMotion, onNavigate }: {
         <path d="M0 440 240 260 435 380 710 140 970 235 1200 55M120 600 240 260 150 0M435 380 550 600M710 140 675 0M970 235 1040 600" />
       </svg>
     </div>
+    <div className="buyer-hero-main">
     <div className="buyer-hero-content">
       <p className="buyer-hero-eyebrow"><span aria-hidden="true" />{t('জমি কেনার আগে · পাঁচটি বিষয়', 'Before you buy · five checks')}</p>
       <h1 id="buyer-guide-title">{t('জমি কেনার আগে,\nজেনে নিন ভালো করে।', 'Before buying land,\nknow what to check.')}</h1>
@@ -77,6 +78,17 @@ export function BuyerHero({ motionPaused, onToggleMotion, onNavigate }: {
         {t(current.action[0], current.action[1])}<span aria-hidden="true">→</span>
       </a>
       <p className="buyer-hero-boundary">{t('TreeTweet একটি স্বাধীন সহায়িকা। সরকারি রেকর্ড এখানে যাচাই করা হয় না।', 'TreeTweet is an independent guide. Government records are not verified here.')}</p>
+    </div>
+    <figure className="buyer-hero-village-frame">
+      <div className="buyer-hero-village-image">
+        <div className="buyer-hero-village-camera">
+          <Image src="/images/village-rice-fields.webp" fill sizes="(max-width: 1023px) 100vw, 40vw"
+            alt={t('সবুজ ধানখেত, গ্রামের পথ ও গাছের প্রতীকী দৃশ্য', 'Illustrative scene of green rice fields, a village path and trees')}
+            className="buyer-hero-village-photo" />
+        </div>
+      </div>
+      <figcaption>{t('গ্রামের জমি, পরিবারের ভবিষ্যৎ', 'Village land, a family’s future')}<span>{t('প্রতীকী দৃশ্য', 'Illustrative scene')}</span></figcaption>
+    </figure>
     </div>
     <div className="buyer-hero-bottom">
       <div className="buyer-hero-controls" role="group" aria-label={t('ছবি বদলানোর নিয়ন্ত্রণ', 'Slideshow controls')}>
