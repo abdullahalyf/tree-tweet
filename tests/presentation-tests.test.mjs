@@ -13,7 +13,7 @@ function load(relative) {
   runInNewContext(output, context);
   return context.exports;
 }
-const { scenarioEnglish } = load('../src/lib/i18n/issues.ts');
+const { scenarioEnglish, localizeIssue } = load('../src/lib/i18n/issues.ts');
 const { DEMO_SCENARIOS } = load('../src/lib/demo/fixtures.ts');
 const { getFlagState, hasCompletePlotStatus, getCheckState } = load('../src/lib/i18n/presentation.ts');
 
@@ -59,4 +59,64 @@ test('known risks remain visible alongside incomplete evidence', () => {
   assert.equal(getCheckState(false, false), 'incomplete');
   assert.equal(getCheckState(true, true), 'review');
   assert.equal(getCheckState(true, false), 'clear');
+});
+
+const { getBuyerChecklist, readMutationHistory } = load('../src/lib/i18n/buyerChecklist.ts');
+const completeEvidence = () => ({
+  khatian: { owner_name: 'Owner', land_type: 'normal', mutation_status: 'done', mutation_history: [{ date: '2025-02-01', status: 'done', reference: 'DEMO-1' }] },
+  selectedDeed: { seller: 'Owner' },
+  plotStatus: { court_case: false, acquisition_status: 'not_reported' }, issues: [],
+});
+const checkState = (data, id) => getBuyerChecklist(data).find(check => check.id === id).state;
+
+test('buyer checklist covers exactly the five P5 questions and missing acquisition stays unknown', () => {
+  const data = completeEvidence();
+  assert.equal(getBuyerChecklist(data).map(check => check.id).join(','), 'owner,mutation,court,khas,acquisition');
+  assert.ok(getBuyerChecklist(data).every(check => check.state === 'clear'));
+  for (const value of [undefined, null, 'unknown', '', 'false']) {
+    data.plotStatus.acquisition_status = value;
+    assert.equal(checkState(data, 'acquisition'), 'missing');
+  }
+  for (const value of ['notice', 'acquired']) {
+    data.plotStatus.acquisition_status = value;
+    assert.equal(checkState(data, 'acquisition'), 'review');
+  }
+});
+
+test('complete mutation status alone cannot imply complete mutation history', () => {
+  const data = completeEvidence();
+  delete data.khatian.mutation_history;
+  assert.equal(checkState(data, 'mutation'), 'missing');
+  for (const history of [[], [{date:'2025-02-30',status:'done',reference:'DEMO'}], [{date:'2025-02-01',status:'done',reference:''}]]) {
+    assert.equal(readMutationHistory(history).length, 0);
+    data.khatian.mutation_history = history;
+    assert.equal(checkState(data, 'mutation'), 'missing');
+  }
+  data.khatian.mutation_status = 'pending';
+  assert.equal(checkState(data, 'mutation'), 'review-missing');
+});
+
+test('known court and acquisition risks remain visible with incomplete records', () => {
+  const data = completeEvidence();
+  data.plotStatus.court_case = true;
+  data.plotStatus.acquisition_status = 'notice';
+  data.issues = [{code:'RECORD_DATA_INCOMPLETE'}];
+  assert.equal(checkState(data, 'court'), 'review-missing');
+  assert.equal(checkState(data, 'acquisition'), 'review-missing');
+});
+
+test('plain issue copy gives an action without leaking hash jargon or raw engine text', () => {
+  const issue = { code:'DEED_HASH_MISMATCH', severity:'CRITICAL', titleBn:'SHA-256', descriptionBn:'DEED_HASH_MISMATCH stored hash ABCDEF0123456789' };
+  const bn = localizeIssue(issue, 'bn');
+  const en = localizeIssue(issue, 'en');
+  assert.equal(bn.title, 'দলিলের তথ্য মিলছে না');
+  assert.equal(en.title, 'Deed details do not match');
+  for (const value of [bn,en]) {
+    assert.ok(value.action.length > 20);
+    assert.doesNotMatch(value.title + value.description + value.action, /SHA|hash|হ্যাশ|DEED_HASH|ABCDEF/i);
+  }
+  for (const code of ['ACQUISITION_NOTICE','LAND_ACQUIRED','ACQUISITION_STATUS_UNAVAILABLE','MUTATION_HISTORY_UNAVAILABLE']) {
+    assert.notEqual(localizeIssue({...issue,code}, 'en').title, 'Further checks are needed');
+    assert.ok(localizeIssue({...issue,code}, 'bn').action.length > 20);
+  }
 });

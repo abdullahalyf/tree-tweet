@@ -1,36 +1,39 @@
 import type { VerificationIssue } from '@/lib/verification/types';
 import type { Language } from './LanguageProvider';
 
-const english: Record<string, [string, string]> = {
-  KHATIAN_NOT_FOUND: ['Khatian unavailable', 'No ownership record was supplied. Ownership and available area cannot be assessed.'],
-  KHAS_LAND_PROHIBITED: ['Government khas land', 'The supplied record marks this plot as government khas land. Do not proceed without professional review.'],
-  MUTATION_NOT_DONE: ['Mutation incomplete', 'The supplied ownership mutation record is incomplete. Verify the current record with the land office.'],
-  MUTATION_PENDING: ['Mutation pending', 'The supplied record shows a pending ownership mutation. Obtain the completed record before proceeding.'],
-  SELLER_NAME_VARIATION: ['Seller name variation', 'The seller and recorded owner names differ. Check the original names and supporting identity documents.'],
-  SELLER_OWNER_MISMATCH: ['Seller does not match owner', 'The supplied seller name does not match the recorded owner. Investigate the seller’s authority.'],
-  PLOT_MORTGAGED: ['Mortgage reported', 'The supplied plot record reports a mortgage. Independently verify its status and any release documents.'],
-  PLOT_COURT_DISPUTE: ['Court dispute reported', 'The supplied plot record reports a court dispute. Obtain professional advice and review the relevant orders.'],
-  EXCESSIVE_AREA_REQUESTED: ['Sale exceeds available area', 'The proposed sale area exceeds the remaining area in the supplied khatian.'],
-  DOUBLE_SALE_DETECTED: ['Possible double sale', 'Multiple active transfer deeds were found for this plot. Their legal effect needs independent review.'],
-  DEED_CANCELLED: ['Cancelled deed', 'The selected deed is marked cancelled in the supplied records.'],
-  DEED_HASH_MISMATCH: ['Deed integrity mismatch', 'The calculated SHA-256 fingerprint differs from the stored hash. This signals changed data, not conclusive legal proof of fraud.'],
-  DEED_NOT_FOUND: ['Requested deed not found', 'The requested deed is absent from the supplied plot records. It cannot receive a reassuring assessment.'],
-  DEED_RECORDS_MISSING: ['Deed records missing', 'No transfer deeds were supplied. Integrity, seller identity and transfer history cannot be assessed.'],
-  PLOT_STATUS_UNAVAILABLE: ['Plot status unavailable', 'Mortgage and court dispute evidence is missing. No conclusion can be drawn about encumbrances.'],
-  INVALID_AREA: ['Invalid land area', 'The supplied area is invalid or non-finite. Availability cannot be assessed.'],
-  RECORD_DATA_INCOMPLETE: ['Incomplete record data', 'Essential record fields are missing or invalid. The supplied evidence cannot support a complete assessment.'],
-  RECORD_PLOT_MISMATCH: ['Plot identifier mismatch', 'The supplied records refer to different plot identifiers. Confirm the original records before proceeding.'],
+// Title, meaning and next action, each in Bangla then English. Engine text remains
+// available separately in the closed technical disclosure on the result screen.
+const copy: Record<string, [string, string, string, string, string, string]> = {
+  KHATIAN_NOT_FOUND: ['মালিকের রেকর্ড পাওয়া যায়নি', 'Owner record not found', 'কার নামে জমি আছে, এই তথ্য দিয়ে বোঝা যাচ্ছে না।', 'The supplied information does not establish whose name is on the land record.', 'ভূমি অফিস থেকে খতিয়ানের কপি নিয়ে মিলিয়ে দেখুন।', 'Get the khatian from the land office and compare the details.'],
+  KHAS_LAND_PROHIBITED: ['রেকর্ডে জমি সরকারি খাস হিসেবে আছে', 'The record marks this as government khas land', 'এই জমি ব্যক্তিগত জমি হিসেবে বিক্রির প্রস্তাব দেওয়া হয়েছে।', 'This land is being offered as private land although the record marks it as government land.', 'টাকা দেবেন না। ভূমি অফিসে জমির শ্রেণি ও বিক্রির অনুমতি যাচাই করুন।', 'Do not pay. Verify the land category and permission to sell with the land office.'],
+  MUTATION_NOT_DONE: ['নামজারি শেষ হয়নি', 'Mutation is not complete', 'প্রদত্ত রেকর্ডে মালিকানার নাম হালনাগাদ করা হয়নি।', 'The supplied record does not show a completed ownership name update.', 'ভূমি অফিসে নামজারির বর্তমান অবস্থা ও কাগজ দেখুন।', 'Check the current mutation status and papers with the land office.'],
+  MUTATION_PENDING: ['নামজারির কাজ চলছে', 'Mutation is still pending', 'নামজারির আবেদন এখনও নিষ্পত্তি হয়নি।', 'The ownership name update has not yet been completed.', 'নামজারির সিদ্ধান্ত ও হালনাগাদ খতিয়ান না দেখে এগোবেন না।', 'Review the mutation decision and updated khatian before proceeding.'],
+  MUTATION_HISTORY_UNAVAILABLE: ['আগের নামজারির তথ্য নেই', 'Earlier mutation information is missing', 'কখন কার নামে রেকর্ড বদলেছে, তার পর্যাপ্ত তথ্য নেই।', 'There is not enough information about when the recorded ownership changed.', 'ভূমি অফিস থেকে আগের ও বর্তমান নামজারির কাগজ মিলিয়ে নিন।', 'Compare earlier and current mutation documents at the land office.'],
+  SELLER_NAME_VARIATION: ['মালিক ও বিক্রেতার নামে অল্প অমিল', 'Owner and seller names differ slightly', 'নামের বানান বা অংশ আলাদা। একই ব্যক্তি কি না নিশ্চিত হওয়া দরকার।', 'The spelling or parts of the names differ. Their identity needs to be confirmed.', 'মূল পরিচয়পত্র, খতিয়ান ও দলিল একসাথে মিলিয়ে দেখুন।', 'Compare the original identity documents, khatian and deed together.'],
+  SELLER_OWNER_MISMATCH: ['বিক্রেতার নাম মালিকের সাথে মিলছে না', 'Seller name does not match the owner', 'যিনি বিক্রি করছেন, তাঁর নাম রেকর্ডের মালিকের নামের সাথে আলাদা।', 'The person offering the land has a different name from the recorded owner.', 'টাকা দেওয়ার আগে বিক্রির অধিকার ও মূল কাগজ যোগ্য পেশাদারের সাহায্যে যাচাই করুন।', 'Before paying, verify the authority to sell and original papers with qualified professional help.'],
+  PLOT_MORTGAGED: ['জমি বন্ধক থাকার তথ্য আছে', 'A mortgage is reported', 'প্রদত্ত তথ্য অনুযায়ী জমির ওপর ঋণের দায় আছে।', 'The supplied information reports a loan secured against the land.', 'সংশ্লিষ্ট ব্যাংকে বর্তমান দায় ও বন্ধকমুক্তির কাগজ যাচাই করুন।', 'Check the current liability and mortgage release documents with the lender.'],
+  PLOT_COURT_DISPUTE: ['জমি নিয়ে মামলা থাকার তথ্য আছে', 'A court dispute is reported', 'প্রদত্ত তথ্য অনুযায়ী জমি নিয়ে আদালতে বিরোধ আছে।', 'The supplied information reports a court dispute involving the land.', 'মামলার বর্তমান অবস্থা ও আদালতের আদেশ আইনজীবীর সাহায্যে দেখুন।', 'Review the current case status and court orders with a lawyer.'],
+  EXCESSIVE_AREA_REQUESTED: ['রেকর্ডের চেয়ে বেশি জমি বিক্রির কথা বলা হয়েছে', 'The proposed sale exceeds the available area', 'খতিয়ানে যত জমি অবশিষ্ট আছে, বিক্রির পরিমাণ তার চেয়ে বেশি।', 'The proposed sale area exceeds the remaining area in the khatian.', 'মূল খতিয়ান, আগের বিক্রি ও জমির মাপ মিলিয়ে নিন।', 'Compare the original khatian, earlier sales and land measurements.'],
+  DOUBLE_SALE_DETECTED: ['একই জমি একাধিকবার বিক্রির আশঙ্কা', 'The same land may have been sold more than once', 'একই দাগে একাধিক চলমান বিক্রির দলিল পাওয়া গেছে।', 'More than one active transfer deed was found for this plot.', 'টাকা দেবেন না। সাব-রেজিস্ট্রি অফিসে সব দলিলের ইতিহাস যাচাই করুন।', 'Do not pay. Check the complete deed history at the sub-registry office.'],
+  DEED_CANCELLED: ['দলিলটি বাতিল দেখাচ্ছে', 'The deed is marked cancelled', 'প্রদত্ত রেকর্ডে এই দলিল আর সক্রিয় নেই।', 'The supplied record marks this deed as no longer active.', 'কেন বাতিল হয়েছে এবং বর্তমান বৈধ কাগজ কোনটি, যাচাই করুন।', 'Check why it was cancelled and identify the current valid documents.'],
+  DEED_HASH_MISMATCH: ['দলিলের তথ্য মিলছে না', 'Deed details do not match', 'বর্তমান দলিলের তথ্য আগে সংরক্ষিত তথ্যের সাথে মিলছে না। এটি একাই জালিয়াতির চূড়ান্ত প্রমাণ নয়।', 'The current deed details differ from the previously stored information. This alone is not conclusive proof of fraud.', 'টাকা দেওয়ার আগে মূল দলিল ও অফিসের সংরক্ষিত কপি মিলিয়ে দেখুন।', 'Before paying, compare the original deed with the copy held by the relevant office.'],
+  DEED_NOT_FOUND: ['চাওয়া দলিলটি পাওয়া যায়নি', 'The requested deed was not found', 'এই দাগের প্রদত্ত রেকর্ডে দলিলটি নেই।', 'The requested deed is absent from the supplied plot records.', 'দাগ ও দলিল নম্বর মিলিয়ে সাব-রেজিস্ট্রি অফিসে মূল রেকর্ড দেখুন।', 'Confirm the plot and deed numbers and check the original sub-registry record.'],
+  DEED_RECORDS_MISSING: ['বিক্রির দলিলের তথ্য নেই', 'Transfer deed information is missing', 'আগে কাকে কতটুকু জমি বিক্রি হয়েছে, যাচাই করা যাচ্ছে না।', 'Earlier transfers and their areas cannot be checked with the supplied information.', 'সাব-রেজিস্ট্রি অফিস থেকে দলিলের ইতিহাস সংগ্রহ করুন।', 'Obtain the deed history from the sub-registry office.'],
+  PLOT_STATUS_UNAVAILABLE: ['মামলা বা বন্ধকের পুরো তথ্য নেই', 'Court or mortgage information is incomplete', 'তথ্য না থাকার অর্থ মামলা বা ঋণের দায় নেই, এমন নয়।', 'Missing information does not mean that there is no dispute or mortgage.', 'মামলা ও বন্ধক সম্পর্কে সংশ্লিষ্ট অফিসে আলাদাভাবে খোঁজ নিন।', 'Check court disputes and mortgages separately with the relevant offices.'],
+  INVALID_AREA: ['জমির পরিমাণ ঠিক বোঝা যাচ্ছে না', 'The land area cannot be read reliably', 'প্রদত্ত জমির পরিমাণের তথ্য গ্রহণযোগ্য নয়।', 'The supplied area information is not valid.', 'মূল কাগজ দেখে জমির পরিমাণ ও একক ঠিক করুন।', 'Use the original documents to confirm the area and unit.'],
+  RECORD_DATA_INCOMPLETE: ['রেকর্ডের কিছু তথ্য অসম্পূর্ণ', 'Some record details are incomplete', 'সব প্রয়োজনীয় তথ্য পাওয়া যায়নি বা তথ্য ঠিক নেই।', 'Some essential information is missing or invalid.', 'মূল কাগজ থেকে ঘাটতি পূরণ করে আবার যাচাই করুন।', 'Fill the gaps using original documents and check again.'],
+  RECORD_PLOT_MISMATCH: ['কাগজগুলোর দাগ নম্বর আলাদা', 'The documents refer to different plot numbers', 'সব কাগজ একই জমির কি না বোঝা যাচ্ছে না।', 'The supplied documents may not refer to the same plot.', 'প্রতিটি কাগজের দাগ, মৌজা ও খতিয়ান মিলিয়ে নিন।', 'Compare the plot number, mouza and khatian on each document.'],
+  ACQUISITION_NOTICE: ['সরকারি অধিগ্রহণের নোটিশের তথ্য আছে', 'A government acquisition notice is reported', 'সরকার জমিটি নেওয়ার প্রক্রিয়া শুরু করেছে বলে তথ্য আছে।', 'The supplied information reports that a government acquisition process has started.', 'জেলা প্রশাসকের ভূমি অধিগ্রহণ শাখায় নোটিশ ও বর্তমান অবস্থা যাচাই করুন।', 'Check the notice and current status with the district administration land acquisition office.'],
+  LAND_ACQUIRED: ['জমি অধিগ্রহণ করা হয়েছে বলে তথ্য আছে', 'The land is reported as acquired', 'প্রদত্ত রেকর্ডে সরকার জমিটি অধিগ্রহণ করেছে বলা আছে।', 'The supplied record reports that the government has acquired the land.', 'টাকা দেবেন না। ভূমি অধিগ্রহণ শাখায় মূল আদেশ ও জমির পরিচয় মিলিয়ে দেখুন।', 'Do not pay. Confirm the acquisition order and plot identity with the land acquisition office.'],
+  ACQUISITION_STATUS_UNAVAILABLE: ['অধিগ্রহণের তথ্য পাওয়া যায়নি', 'Acquisition information is missing', 'সরকার জমি নেওয়ার নোটিশ দিয়েছে কি না, জানা যাচ্ছে না।', 'It is unknown whether the government has issued an acquisition notice for this land.', 'জেলা প্রশাসকের ভূমি অধিগ্রহণ শাখায় এই দাগের বিষয়ে খোঁজ নিন।', 'Ask the district administration land acquisition office about this plot.'],
 };
 
-/** Pure presentation mapping; original identifiers and quoted names stay unchanged. */
-export function localizeIssue(issue: VerificationIssue, language: Language): { title: string; description: string } {
-  if (language === 'bn') return { title: issue.titleBn, description: issue.descriptionBn };
-  const translated = english[issue.code];
-  const originalDetails = issue.descriptionBn.match(/[“"'‘][^”"'’]+[”"'’]|DEED-[A-Za-z0-9-]+/g) ?? [];
-  return {
-    title: translated?.[0] ?? 'Additional verification required',
-    description: `${translated?.[1] ?? 'An additional issue was reported. Review the original records with a qualified professional.'}${originalDetails.length ? ` Recorded details: ${originalDetails.join('; ')}` : ''}`,
-  };
+export function localizeIssue(issue: VerificationIssue, language: Language): { title: string; description: string; action: string } {
+  const value = copy[issue.code] ?? ['আরও যাচাই দরকার', 'Further checks are needed', 'এই তথ্য দিয়ে সিদ্ধান্ত নেওয়া যাচ্ছে না।', 'The supplied information is not enough for a decision.', 'মূল কাগজ নিয়ে সংশ্লিষ্ট অফিসে যোগাযোগ করুন।', 'Take the original documents to the relevant office for review.'];
+  const offset = language === 'bn' ? 0 : 1;
+  // Names/identifiers are record data, not translated prose.
+  const names = issue.code.startsWith('SELLER_') ? issue.descriptionBn.match(/[“"'‘][^”"'’]+[”"'’]|DEED-[A-Za-z0-9-]+/g) ?? [] : [];
+  return { title: value[offset], description: `${value[2 + offset]}${names.length ? ` ${names.join('; ')}` : ''}`, action: value[4 + offset] };
 }
 
 export const scenarioEnglish: Record<string, string> = {
