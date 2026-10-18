@@ -10,8 +10,18 @@ const notoSansBengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই',
-  description: 'বাংলা ও ইংরেজিতে জমির রেকর্ডের প্রাথমিক ঝুঁকি যাচাই। Synthetic land record risk assessment prototype.',
+  metadataBase: new URL('https://treetweet.vercel.app'),
+  description: 'জমি কেনার আগে মালিক, নামজারি, মামলা, খাস ও অধিগ্রহণের তথ্য কোথায় যাচাই করবেন—সহজ বাংলা ও ইংরেজিতে সরকারি সেবার নির্দেশিকা।',
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website', locale: 'bn_BD', alternateLocale: ['en_US'],
+    url: '/', siteName: 'TreeTweet',
+    title: 'TreeTweet — জমি কেনার আগে ৫টি জরুরি খোঁজ',
+    description: 'মালিক, নামজারি, মামলা, খাস ও অধিগ্রহণ: সরকারি সেবা ও সহজ করণীয়। স্বাধীন সহায়ক প্রকল্প; সরাসরি সরকারি রেকর্ড সংযোগ নেই।',
+    images: [{ url: '/social-card.png', width: 1200, height: 630, alt: 'TreeTweet — Check before you buy. Five essential land record checks.' }],
+  },
+  twitter: { card: 'summary_large_image' },
+  icons: { icon: '/icon.svg', apple: '/apple-touch-icon.png' },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

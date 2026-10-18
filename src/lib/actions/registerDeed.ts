@@ -22,7 +22,7 @@ export interface RegisterActionResult {
  * - Computes canonical SHA-256 hash server-side.
  * - Never trusts client-supplied hash.
  * - Generates QR code linking to this app's verification route.
- * - Stores synthetic record in Local Demo Mode registry (or Supabase if configured).
+ * - Issues a stateless receipt; browser restoration owns local demo storage.
  */
 export async function registerSyntheticDeedAction(
   input: SyntheticDeedInput
@@ -31,7 +31,7 @@ export async function registerSyntheticDeedAction(
     // Synthetic writes must never appear to be registrations in a live database.
     if (isSupabaseConfigured()) return { success: false, error: 'লাইভ ডাটাবেজ মোডে ডেমো নিবন্ধন বন্ধ রয়েছে।', errorCode: 'LIVE_MODE_DISABLED' };
     // 1. Register synthetic deed (validates and calculates canonical SHA-256 on server)
-    const registration = await registerSyntheticDeed(input);
+    const registration = await registerSyntheticDeed(input, { persist: false });
 
     if (!registration.success || !registration.deed) {
       return {

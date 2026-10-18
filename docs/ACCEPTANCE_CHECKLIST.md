@@ -2,6 +2,9 @@
 
 এই তালিকা হাতে পরীক্ষা করার জন্য; টিক চিহ্ন দেওয়ার আগে ফল দেখুন। / This is a manual guide; check an item only after observing its result.
 
+- [ ] মূল পাতায় পাঁচটি ধাপ ও সরকারি সেবার লিংক দেখুন। নমুনা অনুসন্ধান ডেমো টুলে আলাদা থাকে। / Confirm the default guide contains five P5 steps and official links; sample lookup stays in Demo tools.
+- [ ] কাগজ জোগাড় ও অমিল চিহ্ন দিয়ে প্রস্তুতির হিসাব বদলান; রিলোডে চিহ্ন মুছে যায়। কোনো “জমি নিরাপদ” সনদ তৈরি হয় না। / Change preparation marks; count and difference message update, reload resets marks, no land clearance is issued.
+
 - [ ] প্রকল্পের মূল ফোল্ডারে `npm ci`, তারপর `npm run dev`; দেখানো localhost ঠিকানা খুলুন। / In the project root run `npm ci`, then `npm run dev`, and open the printed localhost URL. Use one server; workers should reuse the shared dependencies. For a production check use `npm run build` then `npm start`.
 - [ ] নতুন browser profile-এ বাংলা প্রথম ভাষা। উপরের English বোতাম চাপুন, reload করুন; English থাকে। বাংলা বেছে reload করলে বাংলা থাকে। / A fresh browser profile starts in Bangla. Use the top English toggle and reload; English persists. Repeat for Bangla.
 - [ ] দুই ভাষায় অনুসন্ধান, ফল, সতর্কতা, নিবন্ধন, QR, ত্রুটি এবং বোতাম পড়ুন। নাম ও মূল শনাক্তকারী অপরিবর্তিত থাকে। / Inspect search, results, issues, registration, QR, errors and buttons in both languages. Recorded names and identifiers retain their original data.

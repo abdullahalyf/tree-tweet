@@ -111,6 +111,10 @@ main :where(h1, h2, h3, p) { overflow-wrap: anywhere; }
 main [role="dialog"] { background: var(--cream); }
 main .overflow-x-auto { overscroll-behavior-x: contain; }
 .animate-fade-in { animation: workspace-enter .3s ease-out both; }
+.guide-official-link { display: inline-flex; flex-direction: column; justify-content: center; gap: 3px; min-height: 48px; max-width: 100%; padding: 10px 13px; border: 1px solid #bbcfbd; border-radius: 10px; background: #f1f6ed; color: #183f2c; font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }
+.guide-official-link:hover { background: #e6efdf; border-color: #6c8a68; }
+.buyer-guide > section { min-width: 0; }
+.buyer-guide select { color: #203d2c; }
 @keyframes workspace-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 640px) {
   .ambient-particle:nth-child(n+9) { display: none; }
@@ -162,4 +166,9 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
   main { max-width: none !important; padding: 0 !important; }
   .workspace-card { box-shadow: none; border-color: #aaa; break-inside: avoid; }
   code { overflow-wrap: anywhere; }
+  .buyer-guide section { break-inside: avoid; box-shadow: none; }
+  .buyer-guide #buyer-checks { display: block; }
+  .buyer-guide #buyer-checks > section { margin-bottom: 12px; }
+  .buyer-guide select { border-color: #999; appearance: none; }
+  .guide-official-link { color: #000; background: #fff; }
 }

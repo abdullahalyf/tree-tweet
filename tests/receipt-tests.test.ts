@@ -97,4 +97,30 @@ test('Receipts: restoration, untrusted storage and concurrent registration', asy
     assert.equal(getCustomRegisteredDeeds().length, 200);
     assert.equal(new Set(getCustomRegisteredDeeds().map(deed => deed.deed_no)).size, 200);
   });
+
+  await t.test('stateless issuance neither retains visitor records nor consumes local capacity', async () => {
+    for (let index = 0; index < 205; index++) {
+      const issued = await registerSyntheticDeed(input(`STATELESS-${index}`), { persist: false });
+      assert.equal(issued.success, true);
+      assert.ok(issued.deed);
+      assert.equal((await verifyDeedIntegrity(issued.deed)).isValid, true);
+      assert.equal(issued.plotData, null);
+      assert.equal(findDeedByDeedNo(issued.deed.deed_no), null);
+      assert.equal(getCompletePlotFromRegistry(issued.deed.dag_no), null);
+    }
+    assert.equal(getCustomRegisteredDeeds().length, 0);
+  });
+
+  await t.test('stateless issuance ignores another visitor registry capacity but rejects baseline identifiers', async () => {
+    for (let index = 0; index < 200; index++) {
+      assert.equal((await registerSyntheticDeed(input(`FULL-${index}`))).success, true);
+    }
+    const before = JSON.stringify(getCustomRegisteredDeeds());
+    const issued = await registerSyntheticDeed(input('FULL-0'), { persist: false });
+    assert.equal(issued.success, true, 'Unrelated browser registry cannot reserve an identifier globally');
+    assert.equal(JSON.stringify(getCustomRegisteredDeeds()), before);
+    assert.equal((await registerSyntheticDeed(input(DEMO_SCENARIOS[0].deedNo), { persist: false })).success, false);
+    assert.equal((await registerSyntheticDeed({ ...input(), area: Infinity }, { persist: false })).success, false);
+    assert.equal(JSON.stringify(getCustomRegisteredDeeds()), before);
+  });
 });

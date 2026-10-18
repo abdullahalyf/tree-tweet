@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Navbar, ActiveNavTab } from '@/components/ui/navbar';
 import { WorkspaceIntro } from '@/components/ui/workspaceIntro';
 import { AmbientParticles } from '@/components/ui/ambientParticles';
+import { BuyerGuide } from '@/components/guide/BuyerGuide';
 import { SearchForm } from '@/components/search/SearchForm';
 import { VerificationResultView } from '@/components/verification/VerificationResultView';
 import { NoResultView } from '@/components/verification/NoResultView';
@@ -19,10 +20,7 @@ import { normalizeDagNo, normalizeDeedNo } from '@/lib/validation/normalize';
 
 function VerificationWorkspace() {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<ActiveNavTab>(() => {
-    const view = new URLSearchParams(window.location.search).get('view');
-    return view === 'register' || view === 'tamper' ? view : 'search';
-  });
+  const [activeTab, setActiveTab] = useState<ActiveNavTab>('guide');
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentDagNo, setCurrentDagNo] = useState('');
@@ -45,6 +43,7 @@ function VerificationWorkspace() {
     setPlotData(null);
     setCurrentDagNo(dagNo || dagInput.trim());
     setCurrentDeedNo(deedNo);
+    setActiveTab('search');
 
     try {
       // Browser-local demo receipts are never presented as live records. Preserve
@@ -70,7 +69,7 @@ function VerificationWorkspace() {
         setResult(response.result);
       }
       const url = new URL(window.location.href);
-      url.searchParams.delete('view');
+      url.searchParams.set('view', 'search');
       if (dagNo) url.searchParams.set('dag', dagNo); else url.searchParams.delete('dag');
       if (deedNo) url.searchParams.set('deed', deedNo); else url.searchParams.delete('deed');
       window.history.replaceState(null, '', url);
@@ -86,10 +85,16 @@ function VerificationWorkspace() {
     const params = new URLSearchParams(window.location.search);
     const dag = params.get('dag');
     const deed = params.get('deed');
-    if ((dag || deed) && !params.get('view')) {
-      const timer = window.setTimeout(() => { void handleSearch(dag || '', deed || undefined); }, 0);
-      return () => window.clearTimeout(timer);
+    const view = params.get('view');
+    const timer = window.setTimeout(() => {
+      if (view === 'register' || view === 'tamper' || view === 'search') setActiveTab(view);
+    }, 0);
+    if ((dag || deed) && (!view || view === 'search')) {
+      window.clearTimeout(timer);
+      const searchTimer = window.setTimeout(() => { void handleSearch(dag || '', deed || undefined); }, 0);
+      return () => window.clearTimeout(searchTimer);
     }
+    return () => window.clearTimeout(timer);
   }, [handleSearch]);
 
   useEffect(() => {
@@ -100,9 +105,17 @@ function VerificationWorkspace() {
   }, [hasSearched, isLoading]);
 
   const changeTab = (tab: ActiveNavTab) => {
+    if (tab !== 'search') {
+      searchSequence.current++;
+      setIsLoading(false);
+    }
     setActiveTab(tab);
     const url = new URL(window.location.href);
-    if (tab === 'search') url.searchParams.delete('view'); else url.searchParams.set('view', tab);
+    if (tab === 'guide') {
+      url.searchParams.delete('view');
+      url.searchParams.delete('dag');
+      url.searchParams.delete('deed');
+    } else url.searchParams.set('view', tab);
     window.history.replaceState(null, '', url);
   };
 
@@ -127,6 +140,7 @@ function VerificationWorkspace() {
       <a href="#main-content" className="skip-link">{t('মূল বিষয়বস্তুতে যান', 'Skip to main content')}</a>
       <Navbar activeTab={activeTab} onTabChange={changeTab} />
       <main id="main-content" tabIndex={-1} className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+        {activeTab === 'guide' && <BuyerGuide onTryDemo={() => changeTab('search')} />}
         {activeTab === 'search' && (
           <div className="space-y-8 animate-fade-in">
             {!hasSearched && <WorkspaceIntro />}
@@ -155,7 +169,7 @@ function VerificationWorkspace() {
       <footer className="border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
         <div className="max-w-6xl mx-auto px-4 space-y-2">
           <p className="font-semibold text-slate-700">TreeTweet · {t('ভূমির তথ্য, পরিষ্কার সিদ্ধান্ত', 'Land records. Clearer decisions.')}</p>
-          <p>{t('প্রদর্শিত নমুনা তথ্য কাল্পনিক। এই প্রাথমিক মূল্যায়ন সরকারি মালিকানা সনদ নয়।', 'Sample data is synthetic. This preliminary assessment is not an official ownership certificate.')}</p>
+          <p>{t('স্বাধীন সহায়ক প্রকল্প। সরকারি রেকর্ড সরাসরি আনা হয় না। নমুনা পরীক্ষার তথ্য কাল্পনিক।', 'Independent guidance project. Government records are not retrieved here. Sample checker records are synthetic.')}</p>
           <p>{t('ডেমো নিবন্ধন এই ব্রাউজারে সংরক্ষিত হয়; এটি স্থায়ী সরকারি বা ক্লাউড রেকর্ড নয়।', 'Demo receipts are saved in this browser; they are not permanent government or cloud records.')}</p>
         </div>
       </footer>

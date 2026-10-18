@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import { Card, CardBody } from '../ui/card';
 import { DeedRecord } from '@/lib/db/schema';
-import { restoreSyntheticDeed } from '@/lib/demo/registry';
+import { findDeedByDeedNo, restoreSyntheticDeed } from '@/lib/demo/registry';
 import { registerSyntheticDeedAction } from '@/lib/actions/registerDeed';
-import { normalizeDagNo, parseBanglaNumber } from '@/lib/validation/normalize';
+import { normalizeDagNo, normalizeDeedNo, parseBanglaNumber } from '@/lib/validation/normalize';
 
 interface DemoRegistrationFormProps {
   onVerifyDeed: (dagNo: string, deedNo: string) => void;
@@ -47,7 +47,7 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
     setErrorMessage(null);
 
     const normDag = normalizeDagNo(dagNo);
-    const cleanDeedNo = deedNo.trim().toUpperCase();
+    const cleanDeedNo = normalizeDeedNo(deedNo);
     const cleanSeller = seller.trim();
     const cleanBuyer = buyer.trim();
     const numArea = parseBanglaNumber(area);
@@ -80,6 +80,18 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
     setIsLoading(true);
 
     try {
+      // Identifiers belong to this browser, not a shared anonymous server registry.
+      try {
+        const raw = window.localStorage.getItem('landtech_registered_deeds');
+        const cached: unknown = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(cached)) {
+          for (const deed of cached.slice(-200)) await restoreSyntheticDeed(deed);
+        }
+      } catch { /* The in-memory demo still works without browser storage. */ }
+      if (findDeedByDeedNo(cleanDeedNo)) {
+        setErrorMessage('DUPLICATE_DEED');
+        return;
+      }
       const response = await registerSyntheticDeedAction({
         deed_no: cleanDeedNo,
         dag_no: normDag,
@@ -93,7 +105,10 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
       if (!response.success || !response.deed) {
         setErrorMessage('errorCode' in response && typeof response.errorCode === 'string' ? response.errorCode : 'REGISTRATION_FAILED');
       } else {
-        await restoreSyntheticDeed(response.deed);
+        if (!await restoreSyntheticDeed(response.deed)) {
+          setErrorMessage('REGISTRY_FULL');
+          return;
+        }
         setRegisteredDeed(response.deed);
         setCanonicalPayload(response.canonicalPayload || null);
         setQrDataUrl(response.qrDataUrl || null);
@@ -103,8 +118,9 @@ export function DemoRegistrationForm({ onVerifyDeed }: DemoRegistrationFormProps
         if (typeof window !== 'undefined') {
           try {
             const raw = window.localStorage.getItem('landtech_registered_deeds');
-            const arr = raw ? JSON.parse(raw) : [];
-            const filtered = arr.filter((d: { deed_no: string }) => d.deed_no !== response.deed!.deed_no);
+            const parsed: unknown = raw ? JSON.parse(raw) : [];
+            const arr: unknown[] = Array.isArray(parsed) ? parsed : [];
+            const filtered = arr.filter(d => d && typeof d === 'object' && 'deed_no' in d && d.deed_no !== response.deed!.deed_no).slice(-199);
             filtered.push(response.deed);
             window.localStorage.setItem('landtech_registered_deeds', JSON.stringify(filtered));
           } catch (e) {

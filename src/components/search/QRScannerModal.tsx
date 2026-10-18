@@ -8,7 +8,7 @@ interface QRScannerModalProps { isOpen: boolean; onClose: () => void; onScanSucc
 export function QRScannerModal({ isOpen, onClose, onScanSuccess }: QRScannerModalProps) {
   const { t } = useLanguage();
   const [value, setValue] = useState('');
-  const [error, setError] = useState<'empty' | 'invalid' | 'camera' | 'unsupported' | null>(null);
+  const [error, setError] = useState<'empty' | 'invalid' | 'camera' | 'unsupported' | 'external' | null>(null);
   const [active, setActive] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -30,6 +30,10 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess }: QRScannerModa
     const input = raw.trim();
     if (!input) { setError('empty'); return; }
     try {
+      if (/^[a-z][a-z\d+.-]*:/i.test(input) || input.startsWith('//')) {
+        const url = new URL(input, window.location.origin);
+        if (![window.location.origin, 'https://treetweet.vercel.app'].includes(url.origin)) { setError('external'); return; }
+      }
       let dag: unknown; let deed: unknown;
       if (input.startsWith('{')) { const parsed: unknown = JSON.parse(input); if (typeof parsed === 'object' && parsed !== null) { const record = parsed as Record<string, unknown>; dag = record.dag; deed = record.deed; } }
       else if (input.includes('dag=') || input.includes('deed=')) { const params = new URLSearchParams(input.includes('?') ? input.split('?')[1].split('#')[0] : input); dag = params.get('dag'); deed = params.get('deed'); }
@@ -89,10 +93,10 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess }: QRScannerModa
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
       }
     }}>
-      <div className="flex justify-between items-center gap-3"><h2 id="qr-title" className="font-bold text-lg">{t('দলিল QR সরঞ্জাম', 'Deed QR tools')}</h2><button onClick={close} aria-label={t('QR সরঞ্জাম বন্ধ করুন', 'Close QR tools')} className="rounded-lg border px-3 py-2">×</button></div>
-      <p className="text-sm text-slate-600">{t('QR কোডটি ক্যামেরার সামনে ধরুন। ক্যামেরায় পড়া না গেলে নিচে লিংক লিখুন বা নমুনা বেছে নিন।', 'Hold a QR code in front of the camera. If camera scanning is unavailable, paste the QR link or choose a sample.')}</p>
+      <div className="flex justify-between items-center gap-3"><h2 id="qr-title" className="font-bold text-lg">{t('নমুনা QR সরঞ্জাম', 'Sample QR tools')}</h2><button onClick={close} aria-label={t('QR সরঞ্জাম বন্ধ করুন', 'Close QR tools')} className="rounded-lg border px-3 py-2">×</button></div>
+      <p className="text-sm text-slate-600">{t('শুধু TreeTweet-এর নমুনা QR ব্যবহার করুন। সরকারি দলিল, খতিয়ান বা দাখিলার সত্যতা এখানে যাচাই হয় না। ক্যামেরায় পড়া না গেলে নমুনার লিংক লিখুন।', 'Use TreeTweet sample QR codes only. This tool does not authenticate government deeds, khatians or tax receipts. If scanning is unavailable, paste a sample link.')}</p>
       {active ? <video ref={video} muted playsInline aria-label={t('ক্যামেরা প্রিভিউ', 'Camera preview')} className="aspect-video w-full rounded-xl bg-slate-950 object-cover" /> : <button onClick={start} className="rounded-xl border px-4 py-2">{t('ক্যামেরা দিয়ে QR পড়ুন', 'Scan QR with camera')}</button>}
-      {error && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error === 'unsupported' ? t('এই ব্রাউজারে ক্যামেরা দিয়ে QR পড়া যায় না। নিচে লিংক লিখুন বা নমুনা বেছে নিন।', 'Camera QR scanning is unsupported in this browser. Paste the QR link below or choose a sample.') : error === 'camera' ? t('ক্যামেরা চালু হয়নি। অনুমতি পরীক্ষা করুন অথবা কোড পেস্ট করুন।', 'Camera unavailable. Check permission or paste the code instead.') : error === 'empty' ? t('QR লিংক বা কোড লিখুন।', 'Enter a QR link or code.') : t('বৈধ দাগ বা দলিল নম্বর পাওয়া যায়নি।', 'No valid plot or deed number was found.')}</p>}
+      {error && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error === 'external' ? t('শুধু TreeTweet-এর নমুনা লিংক গ্রহণ করা হয়। সরকারি কাগজ যাচাইয়ে সরকারি সেবা ব্যবহার করুন।', 'Only TreeTweet sample links are accepted. Use official services to check government documents.') : error === 'unsupported' ? t('এই ব্রাউজারে ক্যামেরা দিয়ে QR পড়া যায় না। নিচে লিংক লিখুন বা নমুনা বেছে নিন।', 'Camera QR scanning is unsupported in this browser. Paste the QR link below or choose a sample.') : error === 'camera' ? t('ক্যামেরা চালু হয়নি। অনুমতি পরীক্ষা করুন অথবা কোড পেস্ট করুন।', 'Camera unavailable. Check permission or paste the code instead.') : error === 'empty' ? t('QR লিংক বা কোড লিখুন।', 'Enter a QR link or code.') : t('বৈধ দাগ বা দলিল নম্বর পাওয়া যায়নি।', 'No valid plot or deed number was found.')}</p>}
       <form onSubmit={event => { event.preventDefault(); parse(); }} className="space-y-2"><label htmlFor="qr-code" className="block text-sm font-semibold">{t('QR লিংক বা কোড পেস্ট করুন', 'Paste a QR link or code')}</label><input id="qr-code" value={value} onChange={event => { setValue(event.target.value); setError(null); }} placeholder="/?dag=0101&deed=DEED-2024-0001" className="w-full min-w-0 rounded-xl border p-3 text-sm" /><button type="submit" className="rounded-xl bg-emerald-700 px-4 py-2 text-white">{t('রেকর্ড খুলুন', 'Open records')}</button></form>
       <h3 className="text-sm font-bold">{t('কাল্পনিক QR নমুনা', 'Synthetic QR samples')}</h3>
       <div className="grid gap-2 sm:grid-cols-2">{[['A','0101','DEED-2024-0001'],['C','0303','DEED-2024-0003'],['E','0505','DEED-2024-0005B'],['H','0808','DEED-2024-0008']].map(([code, dag, deed]) => <button key={code} onClick={() => select(dag, deed)} className="rounded-xl border p-3 text-left text-sm">{t('কেস', 'Case')} {code} · {dag}<span className="block text-xs text-slate-600">{t(({ A:'প্রদত্ত রেকর্ডে ঝুঁকি শনাক্ত হয়নি', C:'নামের তারতম্য', E:'দ্বৈত বিক্রির ঝুঁকি', H:'দলিলের তথ্য মিলছে না' } as Record<string,string>)[code], code === 'H' ? 'Deed information does not match' : scenarioEnglish[code])}</span></button>)}</div>

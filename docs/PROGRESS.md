@@ -54,3 +54,7 @@ Source import, Bangla/English interface, top toggle, responsive motion, three wo
 - Partial P5 evidence is covered by domain/presentation tests; no live database dataset with partial P5 records was available for rendered testing.
 - Vercel CLI deployment works. Automatic GitHub-to-Vercel linking failed during initial setup, so deployment currently uses the authenticated CLI.
 - Two final worker turns reached their account usage limit; root integrated their committed work and completed verification.
+# Publication release update — 18 October 2026
+
+The public homepage now opens the independent bilingual P5 government-service guide. Supporting mortgage/tax/map/official-QR guidance is included, and sample tools remain separate. Final deployed source `8f782ac` passed CI and live checks. See [PUBLICATION_RELEASE.md](PUBLICATION_RELEASE.md) for observed evidence and remaining real-data/hardware limits, and [OFFICIAL_SOURCES.md](OFFICIAL_SOURCES.md) for source provenance. No government API connection is claimed.
+

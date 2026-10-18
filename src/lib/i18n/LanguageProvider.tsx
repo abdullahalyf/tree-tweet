@@ -23,9 +23,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const language = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   useEffect(() => {
     document.documentElement.lang = language;
-    document.title = language === 'bn' ? 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই' : 'TreeTweet — Check land records before buying';
   }, [language]);
-  return <LanguageContext.Provider value={{ language, setLanguage, t: (bn, en) => language === 'bn' ? bn : en }}>{children}</LanguageContext.Provider>;
+  return <LanguageContext.Provider value={{ language, setLanguage, t: (bn, en) => language === 'bn' ? bn : en }}><title>{language === 'bn' ? 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই' : 'TreeTweet — Check land records before buying'}</title>{children}</LanguageContext.Provider>;
 }
 export function useLanguage(): LanguageContextValue {
   const context = useContext(LanguageContext);
