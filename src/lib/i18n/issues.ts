@@ -34,7 +34,7 @@ export function localizeIssue(issue: VerificationIssue, language: Language): { t
 }
 
 export const scenarioEnglish: Record<string, string> = {
-  A: 'No risk detected in supplied records', B: 'Government khas land', C: 'Owner and seller name variation',
-  D: 'Mortgage and pending mutation', E: 'Possible double sale', F: 'Seller does not match owner',
+  A: 'No risk detected in supplied records', B: 'Another sample with no risk detected in supplied records', C: 'Owner and seller name variation',
+  D: 'Mortgage reported', E: 'Possible double sale', F: 'Seller does not match owner',
   G: 'Sale exceeds remaining area', H: 'Deed fingerprint mismatch',
 };

@@ -1,4 +1,4 @@
-﻿# PUKU1 bilingual feature report
+# PUKU1 bilingual feature report
 
 Applied the `ecc:react-patterns` skill from `E:/Software_C_back/.codex/plugins/cache/ecc/ecc/2.2.3/skills/react-patterns/SKILL.md`. Read AGENTS.md, approved design, Task 1/global constraints, and the installed Next.js use-client documentation before implementation.
 
@@ -22,3 +22,12 @@ Limits/integration:
 - Original Bengali names/mouzas are retained as record data in English presentation. Hashes and canonical data intentionally remain unchanged.
 
 Feature commit: a2618df. Follow-up report/preservation refinement committed separately.
+
+
+## Focused presentation truthfulness follow-up
+- Audited all eight sample captions against immutable fixture fields. Corrected B to a second clean sample and D to mortgage-only; mutation is complete in both fixtures.
+- Partial or malformed mortgage/court flags now render Unknown individually. The combined check requires both explicit booleans and respects PLOT_STATUS_UNAVAILABLE. Known risks remain Review required alongside incomplete evidence.
+- Unknown deed status, land type and mutation enums render Unknown. Their relevant check rows require recognized values.
+- Restored bilingual Print deed and QR receipt action via window.print in registration success.
+- `node tests/presentation-tests.test.mjs`: 3 tests passed (all captions checked against fixture facts, true/false/unknown flag behavior, known-risk plus missing-evidence combination). Direct execution avoids the sandbox EPERM affecting Node test runner child process isolation.
+- Focused ESLint passed. Root owns integrated types/build/browser verification and print CSS.
