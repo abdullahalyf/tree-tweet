@@ -81,12 +81,14 @@ export function normalizeDeedNo(input: string): string {
  * Parses a numeric value from Bangla or English string into a standard JavaScript number.
  */
 export function parseBanglaNumber(input: string | number): number | null {
-  if (typeof input === 'number') return isNaN(input) ? null : input;
+  if (typeof input === 'number') return Number.isFinite(input) ? input : null;
   if (!input) return null;
 
   const normalized = normalizeBanglaDigits(input.trim());
-  const parsed = parseFloat(normalized);
-  return isNaN(parsed) ? null : parsed;
+  // Consume the whole decimal; parseFloat silently accepts values like "5junk".
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) return null;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 /**

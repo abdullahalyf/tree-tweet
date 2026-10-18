@@ -147,8 +147,15 @@ export function verifySellerMatch(ownerName: string, sellerName: string): Verifi
  * Rule 5: Checks Financial & Legal Encumbrances (Mortgage, Court Case)
  */
 export function verifyPlotEncumbrances(plotStatus: PlotStatusRecord | null): VerificationIssue[] {
-  if (!plotStatus) return [];
   const issues: VerificationIssue[] = [];
+  if (!plotStatus || typeof plotStatus.mortgaged !== 'boolean' || typeof plotStatus.court_case !== 'boolean') {
+    issues.push({
+      code: 'PLOT_STATUS_UNAVAILABLE', severity: 'WARNING',
+      titleBn: 'বন্ধক ও মামলার তথ্য অসম্পূর্ণ',
+      descriptionBn: 'বন্ধক ও আদালতের মামলার রেকর্ড পাওয়া যায়নি বা অসম্পূর্ণ। অনুপস্থিত তথ্যকে দায়মুক্তির প্রমাণ হিসেবে বিবেচনা করা যাবে না।',
+    });
+  }
+  if (!plotStatus) return issues;
 
   if (plotStatus.mortgaged) {
     issues.push({
@@ -177,6 +184,14 @@ export function verifyPlotEncumbrances(plotStatus: PlotStatusRecord | null): Ver
  * Rule 6: Checks Area Availability (Excessive Area Check)
  */
 export function verifyAreaAvailability(remainingArea: number, proposedArea: number): VerificationIssue[] {
+  if (!Number.isFinite(remainingArea) || remainingArea < 0 || !Number.isFinite(proposedArea) || proposedArea <= 0) {
+    return [{
+      code: 'INVALID_AREA', severity: 'CRITICAL',
+      titleBn: 'জমির পরিমাণের তথ্য অবৈধ',
+      descriptionBn: 'রেকর্ডীয় বা প্রস্তাবিত জমির পরিমাণ একটি বৈধ সসীম সংখ্যা নয়। মূল রেকর্ড যাচাই করুন।',
+      field: 'area',
+    }];
+  }
   if (proposedArea > remainingArea) {
     return [
       {
@@ -274,12 +289,41 @@ export async function runLandVerification(params: {
   if (targetDeedNo) {
     selectedDeed = deeds.find((d) => d.deed_no.toUpperCase() === targetDeedNo.toUpperCase()) || null;
   } else if (deeds.length > 0) {
-    selectedDeed = deeds[0];
+    selectedDeed = deeds.find((deed) => deed.status === 'active') || deeds[0];
+  }
+
+  if (!selectedDeed) {
+    issues.push({
+      code: targetDeedNo ? 'DEED_NOT_FOUND' : 'DEED_RECORDS_MISSING',
+      severity: targetDeedNo ? 'CRITICAL' : 'WARNING',
+      titleBn: targetDeedNo ? 'অনুসন্ধানকৃত দলিল পাওয়া যায়নি' : 'দলিলের রেকর্ড অনুপস্থিত',
+      descriptionBn: targetDeedNo
+        ? `দলিল নম্বর ${targetDeedNo} এই দাগের রেকর্ডে পাওয়া যায়নি। বিক্রেতা, জমির পরিমাণ এবং দলিলের হ্যাশ যাচাই সম্পন্ন হয়নি।`
+        : 'এই দাগের দলিলের রেকর্ড পাওয়া যায়নি। বিক্রেতা, জমির পরিমাণ এবং দলিলের হ্যাশ যাচাই সম্পন্ন হয়নি।',
+      field: 'deed_no',
+    });
+  }
+
+  if ((khatian && khatian.dag_no !== dagNo) || (plotStatus && plotStatus.dag_no !== dagNo) || deeds.some((deed) => deed.dag_no !== dagNo)) {
+    issues.push({
+      code: 'RECORD_PLOT_MISMATCH', severity: 'CRITICAL',
+      titleBn: 'রেকর্ডের দাগ নম্বরে অমিল',
+      descriptionBn: 'খতিয়ান, দলিল বা আইনি স্থিতির রেকর্ডটি অনুসন্ধানকৃত দাগের সঙ্গে মেলে না। অন্য দাগের তথ্য দিয়ে যাচাই গ্রহণযোগ্য নয়।',
+      field: 'dag_no',
+    });
   }
 
   if (khatian) {
     // 2. Land type
     issues.push(...verifyLandType(khatian));
+
+    if (!['normal', 'khas'].includes(khatian.land_type) || !['none', 'pending', 'done'].includes(khatian.mutation_status) || !khatian.owner_name.trim()) {
+      issues.push({
+        code: 'RECORD_DATA_INCOMPLETE', severity: 'WARNING',
+        titleBn: 'খতিয়ানের তথ্য অসম্পূর্ণ',
+        descriptionBn: 'খতিয়ানের মালিকানা, জমির ধরন বা নামজারির তথ্য অসম্পূর্ণ। মূল উৎস থেকে তথ্য সংগ্রহ করুন।',
+      });
+    }
 
     // 3. Mutation status
     issues.push(...verifyMutationStatus(khatian));
@@ -298,12 +342,24 @@ export async function runLandVerification(params: {
     if (areaToCheck !== undefined) {
       issues.push(...verifyAreaAvailability(khatian.remaining_area, areaToCheck));
     }
+    // A supplied valid proposal must not hide an invalid recorded deed area.
+    if (selectedDeed && proposedArea !== undefined && (!Number.isFinite(selectedDeed.area) || selectedDeed.area <= 0)) {
+      issues.push(...verifyAreaAvailability(khatian.remaining_area, selectedDeed.area));
+    }
 
     // 7. Double-sale check
-    issues.push(...verifyDoubleSale(deeds, targetDeedNo));
+    issues.push(...verifyDoubleSale(deeds, selectedDeed?.deed_no || targetDeedNo));
 
     // 8. Deed Hash integrity check
     if (selectedDeed) {
+      if (!['active', 'cancelled'].includes(selectedDeed.status)) {
+        issues.push({
+          code: 'RECORD_DATA_INCOMPLETE', severity: 'WARNING',
+          titleBn: 'দলিলের স্থিতি নিশ্চিত নয়',
+          descriptionBn: 'দলিলটি সক্রিয় না বাতিল তার নির্ভরযোগ্য তথ্য পাওয়া যায়নি। মূল রেকর্ড যাচাই করুন।',
+          field: 'status',
+        });
+      }
       const hashIssues = await verifyDeedHashIntegrity(selectedDeed);
       issues.push(...hashIssues);
     }
@@ -314,7 +370,7 @@ export async function runLandVerification(params: {
   const hasWarning = issues.some((i) => i.severity === 'WARNING');
 
   let overallStatus: VerificationStatus = 'GREEN';
-  let summaryBn = 'সব তথ্য সঠিক ও যাচাইকৃত। এই জমি ক্রয়ের ক্ষেত্রে কোনো আপাত ঝুঁকি পাওয়া যায়নি।';
+  let summaryBn = 'প্রদত্ত রেকর্ডে নির্ধারিত পরীক্ষায় ঝুঁকি শনাক্ত হয়নি। এটি মালিকানা নিশ্চিত করে না; মূল উৎস থেকে তথ্য যাচাই করুন।';
 
   if (hasCritical) {
     overallStatus = 'RED';

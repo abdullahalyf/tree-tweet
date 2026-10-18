@@ -1,4 +1,4 @@
-import { normalizeDagNo, normalizeDeedNo, normalizeBanglaDigits } from './normalize';
+import { normalizeDagNo, normalizeDeedNo, parseBanglaNumber } from './normalize';
 
 /**
  * Verification Search Query Parameters
@@ -49,9 +49,8 @@ export function validateSearchQuery(input: {
 
   let proposedArea: number | undefined;
   if (input.proposedArea !== undefined && input.proposedArea !== null && input.proposedArea !== '') {
-    const areaStr = normalizeBanglaDigits(String(input.proposedArea));
-    const parsed = parseFloat(areaStr);
-    if (isNaN(parsed) || parsed <= 0) {
+    const parsed = parseBanglaNumber(input.proposedArea);
+    if (parsed === null || parsed <= 0) {
       errors.push('জমির পরিমাণ একটি বৈধ ধনাত্মক সংখ্যা হতে হবে (Proposed area must be a positive number)');
     } else {
       proposedArea = parsed;

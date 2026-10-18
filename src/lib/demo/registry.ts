@@ -1,7 +1,7 @@
 import { DeedRecord, CompletePlotData, KhatianRecord, PlotStatusRecord } from '../db/schema';
 import { DEMO_SCENARIOS } from './fixtures';
 import { computeDeedHash } from '../verification/hash';
-import { normalizeDagNo, parseBanglaNumber } from '../validation/normalize';
+import { normalizeDagNo, normalizeDeedNo, parseBanglaNumber } from '../validation/normalize';
 
 /**
  * In-memory custom registered deeds store for Local Demo Mode.
@@ -28,6 +28,7 @@ export interface SyntheticRegistrationResult {
   plotData: CompletePlotData | null;
   canonicalPayload: string;
   error?: string;
+  errorCode?: 'VALIDATION_ERROR' | 'DUPLICATE_DEED' | 'REGISTRY_FULL';
 }
 
 /**
@@ -40,7 +41,16 @@ export interface SyntheticRegistrationResult {
 export async function registerSyntheticDeed(
   input: SyntheticDeedInput
 ): Promise<SyntheticRegistrationResult> {
-  const deedNo = (input.deed_no || '').trim().toUpperCase();
+  const reject = (error: string): SyntheticRegistrationResult => ({ success: false, deed: null, plotData: null, canonicalPayload: '', error, errorCode: 'VALIDATION_ERROR' });
+  if (!input || typeof input !== 'object') return reject('সঠিক দলিলের তথ্য প্রদান করুন।');
+  // Signed fields must not contain the canonical separator or control characters.
+  for (const key of ['deed_no', 'dag_no', 'seller', 'buyer', 'date', 'prev_hash', 'mouza'] as const) {
+    const value = input[key];
+    if (value !== undefined && value !== null && (typeof value !== 'string' || value.length > 256 || /[|\u0000-\u001f\u007f]/.test(value))) {
+      return reject('তথ্যে অবৈধ অক্ষর আছে বা নির্ধারিত দৈর্ঘ্য অতিক্রম করেছে।');
+    }
+  }
+  const deedNo = normalizeDeedNo(input.deed_no || '');
   const rawDag = (input.dag_no || '').trim();
   const normalizedDag = normalizeDagNo(rawDag);
   const seller = (input.seller || '').trim();
@@ -67,7 +77,7 @@ export async function registerSyntheticDeed(
   }
 
   const parsedArea = typeof input.area === 'number' ? input.area : parseBanglaNumber(String(input.area));
-  if (parsedArea === null || isNaN(parsedArea) || parsedArea <= 0) {
+  if (parsedArea === null || !Number.isFinite(parsedArea) || parsedArea <= 0 || Number(parsedArea.toFixed(4)) <= 0) {
     return {
       success: false,
       deed: null,
@@ -78,6 +88,12 @@ export async function registerSyntheticDeed(
   }
   const numericArea = parsedArea;
 
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date) {
+    return reject('দলিলের তারিখ একটি বৈধ ক্যালেন্ডার তারিখ হতে হবে।');
+  }
+
+  if (customDeeds.length >= 200) return { ...reject('ডেমো নিবন্ধনের সীমা পূর্ণ হয়েছে। নতুন সেশনে চেষ্টা করুন।'), errorCode: 'REGISTRY_FULL' };
+
   // Prevent duplicate deed_no within custom deeds or fixtures
   const existingDeed = findDeedByDeedNo(deedNo);
   if (existingDeed) {
@@ -87,6 +103,7 @@ export async function registerSyntheticDeed(
       plotData: null,
       canonicalPayload: '',
       error: `দলিল নম্বর "${deedNo}" ইতিপূর্বে নিবন্ধিত হয়েছে। ভিন্ন একটি নম্বর ব্যবহার করুন।`,
+      errorCode: 'DUPLICATE_DEED',
     };
   }
 
@@ -102,6 +119,10 @@ export async function registerSyntheticDeed(
   };
 
   const computedHash = await computeDeedHash(deedPayloadData);
+
+  // Digest calculation yields: recheck uniqueness before the atomic in-memory insert.
+  if (findDeedByDeedNo(deedNo)) return { ...reject('এই দলিল নম্বর ইতিপূর্বে নিবন্ধিত হয়েছে।'), errorCode: 'DUPLICATE_DEED' };
+  if (customDeeds.length >= 200) return { ...reject('ডেমো নিবন্ধনের সীমা পূর্ণ হয়েছে।'), errorCode: 'REGISTRY_FULL' };
 
   const newDeed: DeedRecord = {
     id: `custom-deed-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -227,6 +248,24 @@ export function getCompletePlotByDeedFromRegistry(deedNo: string): CompletePlotD
  */
 export function getCustomRegisteredDeeds(): DeedRecord[] {
   return [...customDeeds];
+}
+
+/** Restore a local demo receipt without rehashing or disguising edited data. */
+export async function restoreSyntheticDeed(value: unknown): Promise<boolean> {
+  if (!value || typeof value !== 'object') return false;
+  const deed = value as DeedRecord;
+  if (typeof deed.deed_no !== 'string' || typeof deed.hash !== 'string' || !/^[a-f0-9]{64}$/i.test(deed.hash) || deed.status !== 'active') return false;
+  // Baseline receipts cannot be replaced by browser storage.
+  if (DEMO_SCENARIOS.some((scenario) => scenario.deeds.some((item) => item.deed_no === deed.deed_no))) return false;
+  if (findDeedByDeedNo(deed.deed_no)) return true;
+  const restored = await registerSyntheticDeed({
+    deed_no: deed.deed_no, dag_no: deed.dag_no, seller: deed.seller, buyer: deed.buyer,
+    area: deed.area, date: deed.date, prev_hash: deed.prev_hash,
+  });
+  if (!restored.success || !restored.deed) return false;
+  // Keep the original receipt hash so tampering is still detected by the engine.
+  restored.deed.hash = deed.hash;
+  return true;
 }
 
 /**

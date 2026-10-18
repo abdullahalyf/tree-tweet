@@ -1,5 +1,6 @@
 import { isSupabaseConfigured } from '../db/client';
-import { fetchCompletePlotRecord } from '../db/queries';
+import { fetchCompletePlotRecord, fetchDeedByNo } from '../db/queries';
+import { normalizeDagNo, normalizeDeedNo } from '../validation/normalize';
 import { CompletePlotData } from '../db/schema';
 import { getDemoPlotData, getDemoPlotDataByDeed } from '../demo/fixtures';
 import { getCompletePlotFromRegistry, getCompletePlotByDeedFromRegistry } from '../demo/registry';
@@ -25,12 +26,15 @@ export async function executeLandVerification(params: {
   proposedArea?: number;
   sellerName?: string;
 }): Promise<VerificationServiceResponse> {
-  const { dagNo, deedNo, proposedArea, sellerName } = params;
+  const dagNo = normalizeDagNo(params.dagNo || '');
+  const deedNo = params.deedNo ? normalizeDeedNo(params.deedNo) : undefined;
+  const { proposedArea, sellerName } = params;
 
   // 1. If Supabase is configured, attempt remote query
   if (isSupabaseConfigured()) {
     try {
-      const plotData = await fetchCompletePlotRecord(dagNo);
+      const resolvedDag = dagNo || (deedNo ? (await fetchDeedByNo(deedNo))?.dag_no : '') || '';
+      const plotData = await fetchCompletePlotRecord(resolvedDag);
 
       if (!plotData || !plotData.khatian) {
         return {
@@ -42,7 +46,7 @@ export async function executeLandVerification(params: {
       }
 
       const result = await runLandVerification({
-        dagNo,
+        dagNo: resolvedDag,
         khatian: plotData.khatian,
         plotStatus: plotData.plotStatus,
         deeds: plotData.deeds,
@@ -64,7 +68,7 @@ export async function executeLandVerification(params: {
         source: 'supabase',
         plotData: null,
         result: null,
-        error: err instanceof Error ? err.message : 'ডাটাবেজ সংযোগে ত্রুটি হয়েছে।',
+        error: 'ডাটাবেজ সংযোগে ত্রুটি হয়েছে। পুনরায় চেষ্টা করুন।',
       };
     }
   }
