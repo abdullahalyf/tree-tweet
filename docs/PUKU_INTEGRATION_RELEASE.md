@@ -1,5 +1,7 @@
 # Puku publication follow-up
 
+Shipped: [PR6](https://github.com/abdullahalyf/tree-tweet/pull/6), main merge `bb31180`. App source `0a087f2` deployed to https://treetweet.vercel.app/ as `dpl_8m1ptB6t8SP4c45CnefEa1D68uFq`. App-source [push CI](https://github.com/abdullahalyf/tree-tweet/actions/runs/39118169517) and [PR CI](https://github.com/abdullahalyf/tree-tweet/actions/runs/39118176414) passed. Final live390px check observed five filled49px next buttons, six glossary terms, loaded rural image, no overflow and malformed mixed query rejection without URL normalization; no console errors/warnings. Local app server was stopped after release.
+
 ## Result
 
 Buyer guidance now includes a compact bilingual help/glossary section after the five P5 checks. QR tools use a native modal dialog, a stable camera start/cancel/stop control, linked input errors and a manual fallback. Demo navigation dismisses on Escape/focus leave/outside pointer. Long no-result identifiers wrap.
