@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Navbar, ActiveNavTab } from '@/components/ui/navbar';
 import { WorkspaceIntro } from '@/components/ui/workspaceIntro';
+import { AmbientParticles } from '@/components/ui/ambientParticles';
 import { SearchForm } from '@/components/search/SearchForm';
 import { VerificationResultView } from '@/components/verification/VerificationResultView';
 import { NoResultView } from '@/components/verification/NoResultView';
@@ -122,6 +123,7 @@ function VerificationWorkspace() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans tree-workspace">
+      <AmbientParticles />
       <a href="#main-content" className="skip-link">{t('মূল বিষয়বস্তুতে যান', 'Skip to main content')}</a>
       <Navbar activeTab={activeTab} onTabChange={changeTab} />
       <main id="main-content" tabIndex={-1} className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
