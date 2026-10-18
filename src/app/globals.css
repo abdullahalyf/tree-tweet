@@ -132,7 +132,7 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
 .guide-start-button:hover > span { transform: translateX(4px); }
 .guide-motion-toggle { padding: 10px 2px; font-size: 13px; color: #4b5c50; text-decoration: underline; text-underline-offset: 4px; }
 .guide-intro-boundary { margin-top: 14px; font-size: 13px; line-height: 1.8; color: #5e6e63; }
-.guide-how { align-self: center; border-top: 1px solid #ddded4; padding-top: 22px; }
+.guide-how { border-top: 1px solid #ddded4; border-bottom: 1px solid #ddded4; padding: 22px 4px; }
 .guide-how h2 { font-size: 17px; font-weight: 750; color: #725239; margin-bottom: 18px; }
 .guide-how ol { display: grid; gap: 21px; }
 .guide-how li { display: flex; gap: 12px; align-items: flex-start; }
@@ -162,8 +162,25 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
 .guide-mark-warning { background: #fff0e7; color: #82452e; }
 .guide-preparation-track { height: 7px; border-radius: 6px; overflow: hidden; background: #e9e8df; }
 .guide-preparation-track > span { display: block; height: 100%; background: #8a7651; transform-origin: left center; transition: transform 300ms var(--guide-ease); }
+.guide-reading-line { position: fixed; inset: 0 0 auto; height: 3px; pointer-events: none; z-index: 70; }
+.guide-reading-line > span { display: block; height: 100%; background: #b58c48; transform: scaleX(var(--reading-progress, 0)); transform-origin: left center; }
+.rural-scene { position: relative; isolation: isolate; min-height: 390px; border-radius: 18px; overflow: hidden; background: #66883d; }
+.rural-parallax { position: absolute; inset: -24px; transform: translate3d(0, var(--scene-shift, 0px), 0); }
+.rural-camera { position: absolute; inset: 0; transform: scale(1.04); transform-origin: center; animation: rural-camera-drift 24s ease-in-out infinite alternate; animation-play-state: paused; }
+.rural-photo { object-fit: cover; object-position: 58% center; }
+.rural-scene::after { content: ''; position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, #132a159e 55%, #0c2112eb); pointer-events: none; }
+.rural-birds { position: absolute; top: 27px; left: 18px; width: 76px; height: 30px; color: #34472e; opacity: .8; animation: rural-bird-flight 18s ease-in-out infinite alternate; animation-play-state: paused; }
+.rural-scene[data-scene-active="true"] :is(.rural-camera, .rural-birds) { animation-play-state: running; }
+.rural-scene figcaption { position: absolute; inset: auto 22px 22px; z-index: 1; color: #fffef9; }
+.rural-caption-kicker { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 650; color: #e4edc9; }
+.rural-scene figcaption strong { display: block; font-size: clamp(24px, 2.4vw, 33px); font-weight: 700; line-height: 1.55; white-space: pre-line; }
+.rural-scene-note { display: block; margin-top: 10px; font-size: 12px; color: #e4edc9; }
+@keyframes rural-camera-drift { from { transform: scale(1.04) translateX(-1%); } to { transform: scale(1.15) translateX(1.5%); } }
+@keyframes rural-bird-flight { from { transform: translate3d(0, 5px, 0); } to { transform: translate3d(140px, -8px, 0); } }
 .tree-workspace[data-motion="paused"] *, .tree-workspace[data-motion="paused"] *::before, .tree-workspace[data-motion="paused"] *::after { animation: none !important; transition: none !important; }
 .tree-workspace[data-motion="paused"] .ambient-particles { display: none; }
+.tree-workspace[data-motion="paused"] :is(.rural-parallax, .rural-camera, .rural-birds) { transform: none; }
+.tree-workspace[data-motion="paused"] .guide-reading-line { display: none; }
 .tree-workspace[data-motion="paused"] :is(.guide-topic-link:hover, .guide-topic-link:active, .guide-start-button:active, .guide-start-button:hover > span, .guide-topic-link:hover .guide-topic-arrow, .guide-next-link:hover > span) { transform: none; }
 @keyframes guide-arrive { from { opacity: .7; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @media (hover: hover) {
@@ -171,10 +188,13 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
   .guide-topic-link:hover .guide-topic-arrow { transform: translate(2px, -2px); }
 }
 .guide-start-button:active, .guide-topic-link:active { transform: scale(.98); }
-@media (min-width: 640px) { .guide-topic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 640px) {
+  .guide-topic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guide-how ol { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+}
 @media (min-width: 1024px) {
-  .guide-welcome { grid-template-columns: 1.25fr 1fr; padding: 34px; gap: 40px; }
-  .guide-how { border-top: 0; border-left: 1px solid #ddded4; padding: 0 0 0 30px; }
+  .guide-welcome { grid-template-columns: 1.1fr 1fr; padding: 30px; gap: 32px; }
+  .guide-welcome-copy { align-self: center; }
   .guide-topic-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .guide-topic-link { flex-wrap: wrap; gap: 10px; }
   .guide-topic-link > span:nth-child(2) { flex-basis: calc(100% - 40px); }
@@ -225,12 +245,17 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
   .guide-topic-link { align-items: center; padding: 14px 16px; }
   .guide-topic-number { width: 32px; height: 32px; }
   .guide-how ol { gap: 16px; }
+  .rural-scene { min-height: 250px; margin: 0 -7px -7px; border-radius: 14px; }
+  .rural-scene figcaption { inset: auto 18px 18px; }
+  .rural-scene figcaption strong { font-size: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ambient-particles { display: none; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   .search-panel .grid > button:hover { transform: none; }
   .guide-topic-link:hover, .guide-topic-link:active, .guide-start-button:active, .guide-start-button:hover > span, .guide-topic-link:hover .guide-topic-arrow, .guide-next-link:hover > span { transform: none; }
+  .rural-parallax, .rural-camera { animation: none !important; transform: none !important; }
+  .rural-birds, .guide-reading-line { display: none; }
 }
 
 @media print {
@@ -249,4 +274,6 @@ main .overflow-x-auto { overscroll-behavior-x: contain; }
   .guide-how { border: 0; padding: 12px 0 0; }
   .guide-welcome-copy, .guide-how { break-inside: avoid; }
   .guide-preparation-track { display: none; }
+  .rural-scene, .guide-reading-line { display: none !important; }
+  [data-scroll-reveal] { opacity: 1 !important; transform: none !important; }
 }
