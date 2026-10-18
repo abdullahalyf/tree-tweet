@@ -58,6 +58,7 @@ npm run test:p5
 npm run test:receipts
 npm run test:presentation
 npm run test:motion        # scroll scheduling, pause, preference changes and cleanup
+npm run test:hero          # slideshow visibility, foreground, pause and timer cleanup
 npm run test:hardening     # malformed identifiers, runtime inputs and receipt conflicts
 npm run typecheck
 npm run lint
@@ -65,6 +66,8 @@ npm run build
 ```
 
 These commands are verification instructions, not a claim that every check passed on your machine. Current evidence, known limitations and manual steps are recorded in [the acceptance checklist](docs/ACCEPTANCE_CHECKLIST.md) and [progress log](docs/PROGRESS.md).
+
+The P5 portal layout, animated image hero and latest scoped verification are documented in [the portal release notes](docs/P5_PORTAL_RELEASE.md). The [Puku work queue](docs/TEAM_WORK.md) distinguishes completed worker tasks from publication and remaining manual acceptance.
 
 The app uses Next.js, React, TypeScript, Tailwind CSS, Web Crypto SHA-256 and `qrcode`, with optional Supabase reads. Verification runs in the application's demo/read workflow; registration hashing is a server action and the tamper lab runs in the browser. Do not assume all checks run exclusively on the server.
 
