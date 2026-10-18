@@ -13,7 +13,7 @@ export function VerificationResultView({ result, source, onReset }: Verification
   const { khatian, selectedDeed, deeds, plotStatus } = result;
   const summary = result.overallStatus === 'GREEN' ? t('প্রদত্ত রেকর্ডের নির্ধারিত পরীক্ষায় ঝুঁকি শনাক্ত হয়নি', 'No risk detected by the defined checks in the supplied records') : result.overallStatus === 'YELLOW' ? t('সতর্কতা — অতিরিক্ত যাচাই প্রয়োজন', 'Caution — additional verification required') : t('গুরুতর ঝুঁকি অথবা প্রয়োজনীয় প্রমাণের ঘাটতি', 'Critical risk or essential evidence missing');
   const has = (codes: string[]) => result.issues.some(issue => codes.includes(issue.code));
-  const inconsistent = has(['RECORD_PLOT_MISMATCH']);
+  const inconsistent = has(['RECORD_PLOT_MISMATCH', 'RECORD_DATA_INCOMPLETE']);
   const checks = [
     { name: t('দলিলের SHA-256 অখণ্ডতা', 'Deed SHA-256 integrity'), available: !!selectedDeed && !inconsistent, codes: ['DEED_HASH_MISMATCH'] },
     { name: t('হস্তান্তরের ইতিহাস ও দ্বৈত বিক্রি', 'Transfer history and double sale'), available: deeds.length > 0 && !inconsistent, codes: ['DOUBLE_SALE_DETECTED', 'DEED_CANCELLED'] },

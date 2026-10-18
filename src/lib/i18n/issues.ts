@@ -26,7 +26,7 @@ const english: Record<string, [string, string]> = {
 export function localizeIssue(issue: VerificationIssue, language: Language): { title: string; description: string } {
   if (language === 'bn') return { title: issue.titleBn, description: issue.descriptionBn };
   const translated = english[issue.code];
-  const originalDetails = issue.descriptionBn.match(/[“"‘][^”"’]+[”"’]|DEED-[A-Za-z0-9-]+/g) ?? [];
+  const originalDetails = issue.descriptionBn.match(/[“"'‘][^”"'’]+[”"'’]|DEED-[A-Za-z0-9-]+/g) ?? [];
   return {
     title: translated?.[0] ?? 'Additional verification required',
     description: `${translated?.[1] ?? 'An additional issue was reported. Review the original records with a qualified professional.'}${originalDetails.length ? ` Recorded details: ${originalDetails.join('; ')}` : ''}`,
