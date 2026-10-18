@@ -2,9 +2,9 @@
 
 [Live demo / সরাসরি ডেমো](https://treetweet.vercel.app) · LandTech Innovation Hackathon 2026 · Problem P5: Check Before You Buy
 
-TreeTweet is a Bangla/English prototype for checking potential land-purchase risks in supplied records. Its assessment uses deterministic rules and SHA-256 integrity checks; it does not use an AI model to decide ownership. The demo uses synthetic records and has no connection to government land systems.
+TreeTweet starts with a Bangla/English P5 buyer guide: five checks, links to official government services, preparation tracking and printable next steps. It is an independent guidance project, with no direct government-record connection. A separate sample checker demonstrates deterministic risk rules and SHA-256 integrity checks using synthetic records; it does not use an AI model to decide ownership.
 
-TreeTweet প্রদত্ত রেকর্ডের ভিত্তিতে জমি কেনার সম্ভাব্য ঝুঁকি দেখানোর বাংলা/ইংরেজি প্রটোটাইপ। মূল্যায়নে নির্ধারিত নিয়ম ও SHA-256 অখণ্ডতা পরীক্ষা ব্যবহৃত হয়; মালিকানা নির্ধারণে কোনো AI মডেল ব্যবহার হয় না। ডেমোর তথ্য কাল্পনিক এবং সরকারি ভূমি ব্যবস্থার সাথে কোনো সংযোগ নেই।
+TreeTweet-এর মূল পাতায় P5-এর পাঁচটি যাচাইয়ের সহজ নির্দেশনা, সরকারি সেবার লিংক, নিজের প্রস্তুতির তালিকা ও প্রিন্ট করার সুবিধা আছে। এটি স্বাধীন সহায়ক প্রকল্প; সরকারি রেকর্ড সরাসরি আনে না। আলাদা নমুনা পরীক্ষায় নির্ধারিত নিয়ম ও SHA-256 অখণ্ডতা পরীক্ষা দেখানো হয়; নমুনার তথ্য কাল্পনিক এবং AI দিয়ে মালিকানা নির্ধারণ হয় না।
 
 ## English
 
@@ -13,6 +13,7 @@ TreeTweet প্রদত্ত রেকর্ডের ভিত্তিত�
 The interface starts in Bangla. Use the language toggle at the top to switch to English; the browser remembers your choice when storage is available. Recorded names and identifiers remain unchanged.
 
 - **Search:** enter a plot (dag) number using Bangla or English digits, a deed number, or both. Leading zeros matter. Try the eight synthetic cases A–H: A/B have no detected risk in supplied records, C has a name variation, D a mortgage, E possible double sale, F an owner/seller mismatch, G excess sale area, and H a hash mismatch.
+- **Guide:** the default page explains owner, mutation history, court cases, khas status and acquisition checks. Official links open outside TreeTweet; authentication or an application may be necessary there. Marks mean only that the user collected papers, never that the land passed verification, and reset on reload. Read [official sources and access limits](docs/OFFICIAL_SOURCES.md).
 - **Read the assessment:** inspect reported issues, check availability, original record details and next steps. Green means only that the defined checks detected no risk in the supplied evidence. Missing or inconsistent evidence cannot establish safe ownership.
 - **Register a demo deed:** fill sample details, submit synthetic information, then view its fingerprint, download or print the QR receipt, and check the deed. Demo registration is disabled when Supabase is configured.
 - **QR tools:** paste a lookup link/code or choose a sample. Camera decoding uses the browser's native detector where supported; otherwise use the manual fallback. Camera access requires permission and a secure context, such as HTTPS or localhost.
@@ -22,7 +23,7 @@ A matching hash indicates consistency with the stored fingerprint; it does not e
 
 ### Data and persistence
 
-Without Supabase configuration, the app reads bundled synthetic fixtures. Custom demo registration computes a fingerprint on the server and returns a receipt. The browser restores that receipt into its local demo registry and attempts to cache it in `localStorage`. Browser storage can be blocked or cleared; server memory can disappear or differ between serverless instances. This is not a durable shared registry.
+Without Supabase configuration, the sample checker reads bundled synthetic fixtures. Custom demo registration validates and computes a fingerprint on the server without retaining the receipt in a shared server registry. The browser restores that receipt into its bounded local demo registry and attempts to cache it in `localStorage`. Browser storage can be blocked or cleared. Identifiers are browser-local, not globally reserved. This is not a durable shared registry. Use made-up information only.
 
 **A custom deed QR contains lookup identifiers, not the receipt itself.** Another browser/device may not have the custom receipt and may find no record. Use bundled samples for cross-device demonstrations. No record found is not proof of safe ownership.
 
@@ -72,6 +73,7 @@ The app uses Next.js, React, TypeScript, Tailwind CSS, Web Crypto SHA-256 and `q
 অ্যাপ বাংলায় শুরু হয়। উপরের ভাষা পরিবর্তনের বোতাম দিয়ে ইংরেজি বেছে নিন; ব্রাউজার স্টোরেজ চালু থাকলে পছন্দটি মনে রাখা হয়। রেকর্ডের মূল নাম ও শনাক্তকারী অনুবাদ করা হয় না।
 
 - **অনুসন্ধান:** বাংলা বা ইংরেজি সংখ্যায় দাগ নম্বর, দলিল নম্বর অথবা দুটিই দিন। শুরুর শূন্য অক্ষুণ্ণ রাখুন। আটটি কাল্পনিক নমুনা A–H ব্যবহার করুন: A/B-তে প্রদত্ত রেকর্ডে ঝুঁকি শনাক্ত হয় না; C-তে নামের তারতম্য, D-তে বন্ধক, E-তে দ্বৈত বিক্রির সম্ভাবনা, F-তে মালিক-বিক্রেতার অমিল, G-তে অতিরিক্ত জমি বিক্রি এবং H-তে হ্যাশ অমিল রয়েছে।
+- **মূল নির্দেশিকা:** পাঁচটি ধাপে কী কাগজ লাগবে ও কোন সরকারি সেবায় যাবেন দেখুন। সরকারি সাইটে আলাদা নিবন্ধন বা আবেদন লাগতে পারে। নিজের চিহ্ন শুধু প্রস্তুতির হিসাব; জমি যাচাইয়ের সনদ নয়। রিলোড করলে চিহ্ন মুছে যায়।
 - **ফলাফল:** শনাক্ত বিষয়, প্রমাণের প্রাপ্যতা, রেকর্ড ও পরবর্তী ধাপ দেখুন। সবুজ কেবল প্রদত্ত প্রমাণে নির্ধারিত পরীক্ষায় ঝুঁকি না পাওয়া বোঝায়। অনুপস্থিত বা অসংগত প্রমাণ নিরাপদ মালিকানা প্রতিষ্ঠা করে না।
 - **ডেমো নিবন্ধন:** শুধু কাল্পনিক তথ্য দিন। তৈরি ফিঙ্গারপ্রিন্ট দেখুন, QR রসিদ ডাউনলোড বা প্রিন্ট করুন এবং দলিল যাচাই করুন। Supabase চালু থাকলে ডেমো নিবন্ধন বন্ধ থাকে।
 - **QR সরঞ্জাম:** লিংক/কোড পেস্ট করুন অথবা নমুনা বেছে নিন। সমর্থিত ব্রাউজারে ক্যামেরা QR পড়তে পারে; অন্য ক্ষেত্রে হাতে কোড দিন। ক্যামেরার জন্য অনুমতি ও HTTPS বা localhost দরকার।
@@ -81,7 +83,7 @@ The app uses Next.js, React, TypeScript, Tailwind CSS, Web Crypto SHA-256 and `q
 
 ### তথ্য কোথায় থাকে
 
-Supabase ছাড়া অ্যাপের সাথে থাকা কাল্পনিক নমুনা ব্যবহার হয়। নতুন ডেমো দলিলের হ্যাশ সার্ভারে তৈরি হয়; ফেরত পাওয়া রসিদ ব্রাউজারের ডেমো রেজিস্ট্রিতে রাখা হয় এবং সম্ভব হলে `localStorage`-এ সংরক্ষিত হয়। ব্রাউজারের তথ্য মুছে যেতে পারে; সার্ভারের মেমোরিও স্থায়ী বা সব ইনস্ট্যান্সে এক নয়। এটি স্থায়ী যৌথ রেজিস্ট্রি নয়।
+Supabase ছাড়া নমুনা পরীক্ষায় অ্যাপের কাল্পনিক রেকর্ড ব্যবহার হয়। নতুন ডেমো দলিলের তথ্য সার্ভারে যাচাই ও হ্যাশ করা হয়; যৌথ সার্ভার রেজিস্ট্রিতে রসিদ রাখা হয় না। ফেরত পাওয়া রসিদ ব্রাউজারের সীমিত ডেমো রেজিস্ট্রি ও সম্ভব হলে `localStorage`-এ থাকে। একই নম্বর অন্য ব্রাউজারে ব্যবহৃত হতে পারে; এটি স্থায়ী যৌথ রেজিস্ট্রি নয়। শুধু বানানো তথ্য দিন।
 
 **নতুন ডেমো দলিলের QR-এ শুধু অনুসন্ধানের শনাক্তকারী থাকে, সম্পূর্ণ রসিদ থাকে না।** অন্য ডিভাইস বা ব্রাউজারে সেই রসিদ না থাকলে রেকর্ড নাও পাওয়া যেতে পারে। একাধিক ডিভাইসে প্রদর্শনের জন্য অ্যাপের মূল নমুনাগুলো ব্যবহার করুন। রেকর্ড না পাওয়া নিরাপদ মালিকানার প্রমাণ নয়।
 

@@ -40,8 +40,12 @@ export interface SyntheticRegistrationResult {
  * - Preserves leading zeros in Dag numbers.
  */
 export async function registerSyntheticDeed(
-  input: SyntheticDeedInput
+  input: SyntheticDeedInput,
+  options: { persist?: boolean } = {}
 ): Promise<SyntheticRegistrationResult> {
+  // Server receipt issuance validates/hashes without retaining visitor data.
+  // Browser restoration and existing callers retain the bounded local registry.
+  const persist = options.persist !== false;
   const reject = (error: string): SyntheticRegistrationResult => ({ success: false, deed: null, plotData: null, canonicalPayload: '', error, errorCode: 'VALIDATION_ERROR' });
   if (!input || typeof input !== 'object') return reject('সঠিক দলিলের তথ্য প্রদান করুন।');
   // Signed fields must not contain the canonical separator or control characters.
@@ -93,10 +97,10 @@ export async function registerSyntheticDeed(
     return reject('দলিলের তারিখ একটি বৈধ ক্যালেন্ডার তারিখ হতে হবে।');
   }
 
-  if (customDeeds.length >= 200) return { ...reject('ডেমো নিবন্ধনের সীমা পূর্ণ হয়েছে। নতুন সেশনে চেষ্টা করুন।'), errorCode: 'REGISTRY_FULL' };
+  if (persist && customDeeds.length >= 200) return { ...reject('ডেমো নিবন্ধনের সীমা পূর্ণ হয়েছে। নতুন সেশনে চেষ্টা করুন।'), errorCode: 'REGISTRY_FULL' };
 
   // Prevent duplicate deed_no within custom deeds or fixtures
-  const existingDeed = findDeedByDeedNo(deedNo);
+  const existingDeed = persist ? findDeedByDeedNo(deedNo) : DEMO_SCENARIOS.flatMap(scenario => scenario.deeds).find(deed => deed.deed_no.toUpperCase() === deedNo);
   if (existingDeed) {
     return {
       success: false,
@@ -122,8 +126,8 @@ export async function registerSyntheticDeed(
   const computedHash = await computeDeedHash(deedPayloadData);
 
   // Digest calculation yields: recheck uniqueness before the atomic in-memory insert.
-  if (findDeedByDeedNo(deedNo)) return { ...reject('এই দলিল নম্বর ইতিপূর্বে নিবন্ধিত হয়েছে।'), errorCode: 'DUPLICATE_DEED' };
-  if (customDeeds.length >= 200) return { ...reject('ডেমো নিবন্ধনের সীমা পূর্ণ হয়েছে।'), errorCode: 'REGISTRY_FULL' };
+  if (persist && findDeedByDeedNo(deedNo)) return { ...reject('এই দলিল নম্বর ইতিপূর্বে নিবন্ধিত হয়েছে।'), errorCode: 'DUPLICATE_DEED' };
+  if (persist && customDeeds.length >= 200) return { ...reject('ডেমো নিবন্ধনের সীমা পূর্ণ হয়েছে।'), errorCode: 'REGISTRY_FULL' };
 
   const newDeed: DeedRecord = {
     id: `custom-deed-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -138,6 +142,13 @@ export async function registerSyntheticDeed(
     status: 'active',
     created_at: new Date().toISOString(),
   };
+
+  if (!persist) {
+    return {
+      success: true, deed: newDeed, plotData: null,
+      canonicalPayload: `${newDeed.deed_no}|${newDeed.dag_no}|${newDeed.seller}|${newDeed.buyer}|${newDeed.area.toFixed(4)}|${newDeed.date}|${newDeed.prev_hash}`,
+    };
+  }
 
   // Add to custom deeds
   customDeeds.push(newDeed);
