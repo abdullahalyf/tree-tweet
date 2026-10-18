@@ -1,6 +1,8 @@
-# P5 portal and animated hero
+﻿# P5 portal and animated hero
 
-Release state: implemented and locally verified; root is reviewing and publishing this batch. Commit, PR, production deployment and live verification identifiers are pending. The observations below refer to the local integrated build unless explicitly updated with production evidence.
+Shipped: [PR7](https://github.com/abdullahalyf/tree-tweet/pull/7), merged as `8538d304eea3672494cde9c4dac3b50cd99c1385`. Deployed source `044b8e227aa6864095c1cb93259ceb0ebcdada6d` (app change `2ced6fb`), Vercel `dpl_9ReK1KULnNqXKp6mxEusLr5BFx9r`, ready at [treetweet.vercel.app](https://treetweet.vercel.app/) ([deployment](https://treetweet-bakhiymsz-abdullah-alyf-s-projects.vercel.app)). [Push CI](https://github.com/abdullahalyf/tree-tweet/actions/runs/39119269504) passed in 43 seconds; [PR CI](https://github.com/abdullahalyf/tree-tweet/actions/runs/39119272811) passed in 32 seconds.
+
+Live Bangla390px inspection confirmed a full-width hero, three slides, five correctly linked P5 cards, loaded hero images and no horizontal overflow. Clicking the acquisition card focused `check-acquisition` at189.8px below the viewport top, clear of the measured171.7px sticky header. The offscreen hero became inactive; global pause left zero running animations. The live console had no errors or warnings. Remaining detailed interaction observations below refer to the local integrated build.
 
 ## Result
 
@@ -31,6 +33,11 @@ Root's local browser observations:
 
 ## Remaining acceptance
 
-Native operating-system reduced-motion behavior, physical-phone camera/permission behavior, screen-reader conformance and actual print/PDF output remain unverified. No authorized live government-data integration is present. Deployment and live smoke checks are pending root publication; local observations do not establish production results.
+Native operating-system reduced-motion behavior, physical-phone camera/permission behavior, screen-reader conformance and actual print/PDF output remain unverified. No authorized live government-data integration is present. Production deployment and the basic live mobile smoke check are complete; local observations alone do not establish additional production behavior.
 
-The three Puku tasks for this batch are completed. See [TEAM_WORK.md](TEAM_WORK.md) for the current queue and the active-session limits on continuation.
+The three Puku tasks for this batch are completed, and live publication checks passed. A subsequent user request to place the earlier village image on the hero's right side has been assigned to the hero Puku as the next batch; it is in progress and is not part of PR7. See [TEAM_WORK.md](TEAM_WORK.md) for the current queue and the active-session limits on continuation.
+
+## Follow-up: village image on the right
+
+The hero Puku added the existing village scene beside the copy on desktop and below it on smaller screens, retaining the full-width animated background. Root inspected 1440px and 1024px desktop placement and 390px/320px mobile stacking: no horizontal overflow, loaded image, 200px mobile photo, all hero controls at least 44px. Global pause left zero running animations and reset the photo transform; console showed no warnings/errors. Targeted lint/typecheck and production build passed. Publication identifiers will be added after deployment.
+

@@ -1,6 +1,7 @@
 'use client';
 
 import type { MouseEventHandler } from 'react';
+import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 import './buyer-portal.css';
 
@@ -68,7 +69,7 @@ export function BuyerPortal({ onNavigate }: { onNavigate: MouseEventHandler<HTML
     </div>
     <div className="buyer-portal-layout">
       <nav className="buyer-portal-cards" aria-label={t('জমি কেনার পাঁচটি বিষয়', 'Five land buying topics')}>
-        {services.map((service, index) => <a key={service.id} href={`#check-${service.id}`} onClick={onNavigate} className="buyer-portal-card">
+        {services.map((service, index) => <Link key={service.id} href={`/check/${service.id}`} className="buyer-portal-card">
           <ServiceIllustration kind={service.id} />
           <div className="buyer-portal-card-copy">
             <span className="buyer-portal-card-number">{t('ধাপ', 'Step')} {(index + 1).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}</span>
@@ -76,14 +77,14 @@ export function BuyerPortal({ onNavigate }: { onNavigate: MouseEventHandler<HTML
             <p>{t(service.bodyBn, service.bodyEn)}</p>
             <span className="buyer-portal-card-action">{t('কীভাবে দেখবেন', 'See the steps')} <span aria-hidden="true">→</span></span>
           </div>
-        </a>)}
+        </Link>)}
       </nav>
       <aside className="buyer-portal-sidebar" aria-label={t('সরকারি সেবা ও সাহায্য', 'Official services and help')}>
         <section className="buyer-portal-panel buyer-portal-preparation" aria-labelledby="buyer-portal-prep-title">
           <span className="buyer-portal-panel-mark" aria-hidden="true">✓</span>
           <h3 id="buyer-portal-prep-title">{t('প্রথমবার এসেছেন?', 'First time here?')}</h3>
           <p>{t('দলিল, খতিয়ান ও জমির ঠিকানা হাতে রাখুন। আসল কাগজ এখানে আপলোড করতে হবে না।', 'Keep the deed, khatian and plot location ready. You do not need to upload private documents here.')}</p>
-          <a href="#guide-papers" onClick={onNavigate} className="buyer-portal-prep-link">{t('কাগজের তালিকা দেখুন', 'View the paper checklist')} <span aria-hidden="true">→</span></a>
+          <Link href="/check/papers" className="buyer-portal-prep-link">{t('কাগজের তালিকা দেখুন', 'View the paper checklist')} <span aria-hidden="true">→</span></Link>
         </section>
         <section className="buyer-portal-panel" aria-labelledby="buyer-portal-official-title">
           <h3 id="buyer-portal-official-title">{t('সরকারি সেবায় যান', 'Visit official services')}</h3>
@@ -101,5 +102,11 @@ export function BuyerPortal({ onNavigate }: { onNavigate: MouseEventHandler<HTML
         </section>
       </aside>
     </div>
+    <nav className="buyer-portal-quick-links" aria-label={t('কাগজ, প্রস্তুতি ও সাহায্য', 'Papers, preparation and help')}>
+      <Link href="/check/papers">{t('কী কাগজ লাগবে', 'Papers to gather')} <span aria-hidden="true">→</span></Link>
+      <Link href="/check/preparation">{t('আমার প্রস্তুতি', 'My preparation')} <span aria-hidden="true">→</span></Link>
+      <Link href="/check/help">{t('প্রশ্ন ও সাহায্য', 'Questions and help')} <span aria-hidden="true">→</span></Link>
+      <a href="#guide-how" onClick={onNavigate}>{t('কীভাবে দেখব', 'How to use this guide')} <span aria-hidden="true">↑</span></a>
+    </nav>
   </section>;
 }

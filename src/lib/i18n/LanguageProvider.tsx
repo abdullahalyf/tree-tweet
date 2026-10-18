@@ -19,12 +19,13 @@ const setLanguage = (next: Language) => {
   try { window.localStorage.setItem(STORAGE_KEY, next); } catch { /* Keep the choice in memory when storage is unavailable. */ }
   listeners.forEach(listener => listener());
 };
-export function LanguageProvider({ children }: { children: ReactNode }) {
+export function LanguageProvider({ children, pageTitle }: { children: ReactNode; pageTitle?: readonly [string, string] }) {
   const language = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
-  return <LanguageContext.Provider value={{ language, setLanguage, t: (bn, en) => language === 'bn' ? bn : en }}><title>{language === 'bn' ? 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই' : 'TreeTweet — Check land records before buying'}</title>{children}</LanguageContext.Provider>;
+  const title = pageTitle ? `${pageTitle[language === 'bn' ? 0 : 1]} — TreeTweet` : language === 'bn' ? 'TreeTweet — জমি কেনার আগে ঝুঁকি যাচাই' : 'TreeTweet — Check land records before buying';
+  return <LanguageContext.Provider value={{ language, setLanguage, t: (bn, en) => language === 'bn' ? bn : en }}><title>{title}</title>{children}</LanguageContext.Provider>;
 }
 export function useLanguage(): LanguageContextValue {
   const context = useContext(LanguageContext);

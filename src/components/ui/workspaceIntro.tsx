@@ -7,8 +7,8 @@ export function WorkspaceIntro() {
   return (
     <section className="workspace-intro" aria-labelledby="workspace-title">
       <div>
-        <h1 id="workspace-title">{t('জমি কিনবেন? আগে তথ্য মিলিয়ে নিন', 'Buying land? Check the records first')}</h1>
-        <p className="workspace-description">{t('দাগ বা দলিল নম্বর দিন। চাইলে নমুনা দিয়ে চেষ্টা করুন।', 'Enter a plot or deed number, or try a sample.')}</p>
+        <h1 id="workspace-title">{t('নমুনা দিয়ে জমির তথ্যের অমিল বুঝুন', 'Explore land-record differences with samples')}</h1>
+        <p className="workspace-description">{t('আটটি নমুনা থেকে বেছে নিন, অথবা আপনার বানানো নমুনার নম্বর দিন। আসল জমির তথ্য দেবেন না।', 'Choose one of the eight samples or enter a number from your own made-up example. Do not enter real land information.')}</p>
       </div>
       <div className="workspace-boundary"><span className="boundary-icon" aria-hidden="true">i</span><p>{t('এসব বানানো নমুনা তথ্য। সরকারি সংযোগ নেই; মালিকানার প্রমাণ নয়।', 'These records are made-up samples. No government connection; no proof of ownership.')}</p></div>
     </section>

@@ -7,7 +7,34 @@
 .buyer-hero[data-hero-active="true"] .buyer-hero-photo-layer[data-active="true"] .buyer-hero-camera { animation-play-state: running; }
 .buyer-hero-photo { object-fit: cover; }
 .buyer-hero-map-lines { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .1; stroke: #fff; stroke-width: 1.5; }
-.buyer-hero-content { position: relative; width: min(100%, 680px); }
+.buyer-hero-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: center; width: 100%; }
+.buyer-hero-content { position: relative; width: min(100%, 680px); min-width: 0; }
+.buyer-hero-village-frame { position: relative; min-width: 0; margin: 0; padding: 7px; border: 1px solid #fffbedad; border-radius: 20px; background: #fffbed; box-shadow: 0 14px 35px #00190f35, 0 2px 7px #00190f26; }
+.buyer-hero[data-hero-active="true"] .buyer-hero-village-frame { animation: buyer-hero-photo-arrive 700ms cubic-bezier(.22, 1, .36, 1) both; }
+.buyer-hero-village-image { position: relative; height: 220px; overflow: hidden; border-radius: 13px; background: #7f9b55; outline: 1px solid #00000014; outline-offset: -1px; }
+.buyer-hero-front-panel { position: absolute; inset: 0; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 500ms ease, visibility 500ms; }
+.buyer-hero-front-panel[data-active="true"] { opacity: 1; visibility: visible; }
+.buyer-hero-demo-papers, .buyer-hero-demo-checks { padding: 18px; color: #234e38; background: #e9f0df; }
+.buyer-hero-demo-title { font-size: 18px; line-height: 1.5; font-weight: 750; }
+.buyer-hero-demo-disclosure { display: block; margin-top: 4px; color: #576853; font-size: 11px; line-height: 1.6; }
+.buyer-hero-paper-stack { position: absolute; inset: 75px 14px 12px; }
+.buyer-hero-paper { position: absolute; top: calc(var(--paper-index) * 14px); left: calc(var(--paper-index) * 19%); width: 59%; height: calc(100% - 28px); min-height: 80px; padding: 10px 13px; border: 1px solid #b5c4aa; border-radius: 7px; background: #fffef4; box-shadow: 0 4px 9px #193b2314; transform: rotate(calc((var(--paper-index) - 1) * 3deg)); }
+.buyer-hero-paper strong { display: block; color: #30503a; font-size: 14px; line-height: 1.5; }
+.buyer-hero-paper-line { display: block; height: 2px; width: 80%; margin-top: 7px; background: #c9d3bd; }
+.buyer-hero-paper-line-short { width: 52%; }
+.buyer-hero-paper small { position: absolute; right: 9px; bottom: 6px; color: #738267; font-size: 10px; }
+.buyer-hero-paper-corner { position: absolute; top: 0; right: 0; width: 16px; height: 16px; border-left: 1px solid #c8d4bc; border-bottom: 1px solid #c8d4bc; border-radius: 0 6px 0 5px; background: #edf2e2; }
+.buyer-hero-demo-checks { display: flex; flex-direction: column; justify-content: center; padding-top: 13px; padding-bottom: 13px; }
+.buyer-hero-demo-checks ol { display: grid; gap: 5px; margin-top: 9px; }
+.buyer-hero-demo-checks li { display: flex; align-items: center; gap: 10px; color: #304b37; font-size: 13px; line-height: 1.6; }
+.buyer-hero-demo-checks li > span { display: grid; place-items: center; width: 21px; height: 21px; flex-shrink: 0; border: 1px solid #b9c9ac; border-radius: 50%; background: #fffef4; color: #54704b; font-size: 11px; font-variant-numeric: tabular-nums; }
+.buyer-hero-demo-checks .buyer-hero-demo-disclosure { margin-top: 9px; }
+.buyer-hero-village-camera { position: absolute; inset: -1%; transform: scale(1.02); animation: buyer-hero-village-drift 24s ease-in-out infinite alternate; animation-play-state: paused; }
+.buyer-hero[data-hero-active="true"] .buyer-hero-village-camera { animation-play-state: running; }
+.buyer-hero-village-photo { object-fit: cover; object-position: 58% center; }
+.buyer-hero-village-frame figcaption { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; min-height: 72px; padding: 11px 7px 5px; color: #21452f; font-size: 15px; font-weight: 700; line-height: 1.7; }
+.buyer-hero-village-frame figcaption strong { font-weight: inherit; }
+.buyer-hero-village-frame figcaption span { color: #5b6e5d; font-size: 11px; font-weight: 400; }
 .buyer-hero-eyebrow { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; color: #f0edc8; font-size: 14px; font-weight: 700; }
 .buyer-hero-eyebrow > span { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: #e5d985; box-shadow: 0 0 0 5px #e5d98522; }
 .buyer-hero h1 { margin: 0; color: #fff; font-size: clamp(32px, 3.8vw, 50px); font-weight: 750; line-height: 1.45; letter-spacing: -.6px; white-space: pre-line; text-wrap: balance; }
@@ -22,6 +49,7 @@
 .buyer-hero-start > span { flex-shrink: 0; }
 .buyer-hero-boundary { max-width: 600px; margin-top: 13px; font-size: 13px; line-height: 1.8; color: #e5efdf; }
 .buyer-hero-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; margin-top: 22px; }
+.buyer-hero-village-controls { display: none; }
 .buyer-hero-controls { display: flex; align-items: center; gap: 4px; }
 .buyer-hero-arrow { display: grid; place-items: center; min-width: 44px; min-height: 44px; border: 1px solid #ffffff70; border-radius: 50%; color: #fff; background: #082d2450; transition: background-color 180ms, border-color 180ms; }
 .buyer-hero-arrow > span { font-size: 32px; line-height: 1; transform: translateY(-2px); }
@@ -37,29 +65,69 @@
 .buyer-hero-image-note { margin-top: 7px; font-size: 11px; color: #dce8d7; }
 .buyer-hero :is(a, button):focus-visible { outline: 3px solid #f4d674; outline-offset: 4px; }
 .buyer-hero[data-motion-paused="true"] *, .buyer-hero[data-motion-paused="true"] *::before, .buyer-hero[data-motion-paused="true"] *::after { animation: none !important; transition: none !important; }
-.buyer-hero[data-motion-paused="true"] .buyer-hero-camera { transform: none; }
+.buyer-hero[data-motion-paused="true"] :is(.buyer-hero-camera, .buyer-hero-village-camera) { transform: none; }
 .buyer-hero[data-motion-paused="true"] .buyer-hero-start:active { transform: none; }
 @keyframes buyer-hero-drift { from { transform: scale(1.03) translateX(-.5%); } to { transform: scale(1.12) translateX(1.5%); } }
+@keyframes buyer-hero-village-drift { from { transform: scale(1.02) translateX(-.4%); } to { transform: scale(1.07) translateX(.6%); } }
+@keyframes buyer-hero-photo-arrive { from { opacity: .75; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (min-width: 1024px) {
+  .buyer-hero-main { grid-template-columns: minmax(0, 1.25fr) minmax(0, .9fr); gap: 40px; }
+  .buyer-hero-village-image { height: auto; aspect-ratio: 1.15; }
+}
 @media (max-width: 639px) {
-  .buyer-hero { min-height: 560px; padding: 30px 24px 17px; }
+  .buyer-hero { min-height: 0; padding: 0 0 16px; }
   .buyer-hero-scenery::after { background: linear-gradient(90deg, #072b21df, #082d20a8), linear-gradient(0deg, #062b20df, transparent 75%); }
-  .buyer-hero h1 { font-size: 32px; line-height: 1.5; }
-  .buyer-hero-eyebrow { font-size: 13px; margin-bottom: 14px; }
-  .buyer-hero-copy-stack { margin-top: 15px; }
-  .buyer-hero-slide-copy h2 { font-size: 20px; line-height: 1.7; }
-  .buyer-hero-slide-copy p { font-size: 15px; line-height: 1.85; }
-  .buyer-hero-start { width: 100%; margin-top: 18px; font-size: 15px; padding: 12px 16px; }
-  .buyer-hero-boundary { font-size: 12px; }
-  .buyer-hero-bottom { margin-top: 17px; gap: 5px 16px; }
-  .buyer-hero-image-note { font-size: 11px; line-height: 1.8; }
+  /* On mobile the village photo is shown as a card. The slideshow controls
+     (prev / dots / next / counter) sit on top of the photo's bottom edge as a
+     pill, the playback row sits in normal flow below the card, and the image
+     note follows on the green panel. The desktop controls row (inside
+     .buyer-hero-bottom) is hidden on mobile because the same controls are
+     overlaid on the image. */
+  .buyer-hero-main { position: relative; isolation: isolate; display: block; padding-inline: 16px; }
+  .buyer-hero-village-frame { position: relative; z-index: 1; margin-top: 14px; padding: 0; border: 0; border-radius: 16px; box-shadow: 0 8px 22px #00190f3a; overflow: visible; background: #0d3a28; }
+  .buyer-hero-village-image { position: relative; height: 0; padding-bottom: 64%; border-radius: 16px; overflow: hidden; }
+  .buyer-hero-village-controls { position: absolute; z-index: 2; left: 50%; bottom: 10px; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 999px; background: #062b20d9; box-shadow: 0 6px 14px #00190f55; }
+  .buyer-hero-village-controls .buyer-hero-arrow { min-width: 36px; min-height: 36px; background: transparent; border-color: #ffffff80; }
+  .buyer-hero-village-controls .buyer-hero-arrow > span { font-size: 24px; }
+  .buyer-hero-village-controls .buyer-hero-dots button { width: 30px; min-height: 36px; }
+  .buyer-hero-village-controls .buyer-hero-dots button > span { width: 8px; height: 8px; }
+  .buyer-hero-village-controls .buyer-hero-counter { min-width: 36px; font-size: 12px; color: #e7f0e2; }
+  .buyer-hero-village-frame figcaption { position: absolute; left: 12px; right: 12px; top: 10px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; min-height: 0; padding: 0; color: #fff; font-size: 12px; line-height: 1.5; text-shadow: 0 1px 3px #001c16a8; }
+  .buyer-hero-village-frame figcaption strong { font-weight: 700; }
+  .buyer-hero-village-frame figcaption span { color: #e7f0e2; font-size: 11px; font-weight: 400; }
+  .buyer-hero-content { position: relative; z-index: 2; isolation: isolate; width: 100%; padding: 23px 20px 8px; }
+  .buyer-hero-content::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, #062b20b3 0%, #062b208c 55%, #062b2070 100%); }
+  .buyer-hero-content :is(h1, h2, p) { text-shadow: 0 1px 3px #001c16b3; }
+  .buyer-hero h1 { font-size: 27px; line-height: 1.45; }
+  .buyer-hero-eyebrow { font-size: 12px; margin-bottom: 11px; }
+  .buyer-hero-copy-stack { margin-top: 13px; }
+  .buyer-hero-slide-copy h2 { font-size: 18px; line-height: 1.6; }
+  .buyer-hero-slide-copy p { font-size: 14px; line-height: 1.8; margin-top: 7px; }
+  .buyer-hero-start { width: 100%; margin-top: 15px; min-height: 48px; font-size: 14px; padding: 11px 14px; }
+  .buyer-hero-boundary { font-size: 11px; line-height: 1.8; margin-top: 10px; }
+  .buyer-hero-demo-papers { background: #a3bd82; }
+  .buyer-hero-demo-papers .buyer-hero-demo-title, .buyer-hero-demo-papers .buyer-hero-demo-disclosure { position: absolute; right: 15px; max-width: 55%; text-align: right; }
+  .buyer-hero-demo-papers .buyer-hero-demo-title { bottom: 151px; }
+  .buyer-hero-demo-papers .buyer-hero-demo-disclosure { bottom: 121px; font-size: 10px; }
+  .buyer-hero-paper-stack { inset: auto 10px 9px 25%; height: 110px; }
+  .buyer-hero-demo-checks { justify-content: flex-end; align-items: flex-end; padding: 15px; background: #9ebd97; }
+  .buyer-hero-demo-checks ol { width: 65%; }
+  .buyer-hero-demo-checks .buyer-hero-demo-title { align-self: flex-end; font-size: 16px; }
+  .buyer-hero-demo-checks .buyer-hero-demo-disclosure { max-width: 70%; text-align: right; font-size: 10px; }
+  .buyer-hero-bottom { position: relative; z-index: 2; display: block; margin-top: 14px; padding: 0 20px; gap: 0; }
+  .buyer-hero-bottom > .buyer-hero-controls { display: none; }
+  .buyer-hero-playback { width: 100%; justify-content: space-between; gap: 8px 10px; }
+  .buyer-hero-playback button { font-size: 12px; min-height: 40px; }
+  .buyer-hero-image-note { padding: 6px 20px 0; margin-top: 0; font-size: 10px; line-height: 1.8; color: #dce8d7; }
 }
 @media (prefers-reduced-motion: reduce) {
   .buyer-hero *, .buyer-hero *::before, .buyer-hero *::after { animation: none !important; transition: none !important; }
-  .buyer-hero .buyer-hero-camera { transform: none; }
+  .buyer-hero :is(.buyer-hero-camera, .buyer-hero-village-camera) { transform: none; }
   .buyer-hero .buyer-hero-start:active { transform: none; }
 }
 @media print {
   .buyer-hero { min-height: 0; display: block; padding: 12px; color: #000; background: #fff; }
-  .buyer-hero-scenery, .buyer-hero-bottom, .buyer-hero-image-note, .buyer-hero-start { display: none !important; }
+  .buyer-hero-scenery, .buyer-hero-bottom, .buyer-hero-image-note, .buyer-hero-start, .buyer-hero-village-frame { display: none !important; }
+  .buyer-hero-main { display: block; }
   .buyer-hero h1, .buyer-hero h2, .buyer-hero p { color: #000; }
 }
