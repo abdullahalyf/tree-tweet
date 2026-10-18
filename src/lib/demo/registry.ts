@@ -2,6 +2,7 @@ import { DeedRecord, CompletePlotData, KhatianRecord, PlotStatusRecord } from '.
 import { DEMO_SCENARIOS } from './fixtures';
 import { computeDeedHash } from '../verification/hash';
 import { normalizeDagNo, normalizeDeedNo, parseBanglaNumber } from '../validation/normalize';
+import { isISOCalendarDate } from '../validation/date';
 
 /**
  * In-memory custom registered deeds store for Local Demo Mode.
@@ -88,7 +89,7 @@ export async function registerSyntheticDeed(
   }
   const numericArea = parsedArea;
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date) {
+  if (!isISOCalendarDate(date)) {
     return reject('দলিলের তারিখ একটি বৈধ ক্যালেন্ডার তারিখ হতে হবে।');
   }
 
@@ -153,6 +154,7 @@ export async function registerSyntheticDeed(
       remaining_area: Number(numericArea.toFixed(4)),
       land_type: 'normal',
       mutation_status: 'done',
+      mutation_history: [{ date, status: 'done', reference: `DEMO-${deedNo}` }],
       created_at: new Date().toISOString(),
     });
 
@@ -160,6 +162,7 @@ export async function registerSyntheticDeed(
       dag_no: normalizedDag,
       mortgaged: false,
       court_case: false,
+      acquisition_status: 'not_reported',
       updated_at: new Date().toISOString(),
     });
   }

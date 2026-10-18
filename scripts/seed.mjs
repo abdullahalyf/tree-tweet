@@ -38,7 +38,8 @@ if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your-project-id')) {
   console.log('⚠️  Supabase শংসাপত্র (.env.local) পাওয়া যায়নি বা প্লেসহোল্ডার অবস্থায় আছে।');
   console.log('সরাসরি Supabase Dashboard -> SQL Editor এ গিয়ে নিচের ফাইলগুলো রান করুন:');
   console.log('  1. supabase/migrations/001_initial_schema.sql');
-  console.log('  2. supabase/seed.sql');
+  console.log('  2. supabase/migrations/002_p5_buyer_evidence.sql');
+  console.log('  3. supabase/seed.sql');
   console.log('----------------------------------------------------------------------');
   process.exit(0);
 }
@@ -254,14 +255,19 @@ async function seed() {
   console.log('🌱 সিডিং শুরু হচ্ছে...');
 
   console.log('1. Khatian সিডিং...');
-  const { error: err1 } = await supabase.from('khatian').upsert(khatianRecords, { onConflict: 'dag_no' });
+  const syntheticKhatians = khatianRecords.map((record, index) => ({
+    ...record,
+    mutation_history: [{ date: '2023-12-01', status: record.mutation_status, reference: `DEMO-MUT-${String.fromCharCode(65 + index)}` }],
+  }));
+  const { error: err1 } = await supabase.from('khatian').upsert(syntheticKhatians, { onConflict: 'dag_no' });
   if (err1) {
     console.error('Khatian সিডিং ত্রুটি:', err1.message);
     return;
   }
 
   console.log('2. Plot Status সিডিং...');
-  const { error: err2 } = await supabase.from('plot_status').upsert(plotStatusRecords, { onConflict: 'dag_no' });
+  const syntheticStatuses = plotStatusRecords.map(record => ({ ...record, acquisition_status: 'not_reported' }));
+  const { error: err2 } = await supabase.from('plot_status').upsert(syntheticStatuses, { onConflict: 'dag_no' });
   if (err2) {
     console.error('Plot Status সিডিং ত্রুটি:', err2.message);
     return;

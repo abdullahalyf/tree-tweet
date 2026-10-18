@@ -38,12 +38,14 @@ const baseKhatian: KhatianRecord = {
   remaining_area: 12.0,
   land_type: 'normal',
   mutation_status: 'done',
+  mutation_history: [{ date: '2023-12-01', status: 'done', reference: 'DEMO-MUT-TEST' }],
 };
 
 const basePlotStatus: PlotStatusRecord = {
   dag_no: '0101',
   mortgaged: false,
   court_case: false,
+  acquisition_status: 'not_reported',
 };
 
 const baseDeed: DeedRecord = {
