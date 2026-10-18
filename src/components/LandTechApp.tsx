@@ -29,7 +29,7 @@ function VerificationWorkspace() {
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [plotData, setPlotData] = useState<CompletePlotData | null>(null);
   const [dataSource, setDataSource] = useState<'demo' | 'supabase'>('demo');
-  const [serviceError, setServiceError] = useState(false);
+  const [serviceError, setServiceError] = useState<'invalid' | 'unavailable' | null>(null);
   const searchSequence = useRef(0);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -38,12 +38,12 @@ function VerificationWorkspace() {
     const dagNo = normalizeDagNo(dagInput);
     const deedNo = deedInput ? normalizeDeedNo(deedInput) : undefined;
     setIsLoading(true);
-    setServiceError(false);
+    setServiceError(null);
     setHasSearched(true);
     setResult(null);
     setPlotData(null);
-    setCurrentDagNo(dagNo || dagInput.trim());
-    setCurrentDeedNo(deedNo);
+    setCurrentDagNo(dagInput);
+    setCurrentDeedNo(deedInput);
     setActiveTab('search');
 
     try {
@@ -60,23 +60,29 @@ function VerificationWorkspace() {
           // Storage can be unavailable; fixtures and this session still work.
         }
       }
-      const response = await executeLandVerification({ dagNo, deedNo });
+      // Preserve raw identifiers for validation; an invalid dag must not become
+      // a different, deed-only query when normalization rejects its characters.
+      const response = await executeLandVerification({ dagNo: dagInput, deedNo: deedInput });
       if (sequence !== searchSequence.current) return;
       if (!response.success) {
-        setServiceError(true);
+        setServiceError(response.errorCode === 'INVALID_INPUT' ? 'invalid' : 'unavailable');
       } else {
+        setCurrentDagNo(dagNo);
+        setCurrentDeedNo(deedNo);
         setDataSource(response.source);
         setPlotData(response.plotData);
         setResult(response.result);
       }
-      const url = new URL(window.location.href);
-      url.searchParams.set('view', 'search');
-      if (dagNo) url.searchParams.set('dag', dagNo); else url.searchParams.delete('dag');
-      if (deedNo) url.searchParams.set('deed', deedNo); else url.searchParams.delete('deed');
-      window.history.replaceState(null, '', url);
+      if (response.success) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('view', 'search');
+        if (dagNo) url.searchParams.set('dag', dagNo); else url.searchParams.delete('dag');
+        if (deedNo) url.searchParams.set('deed', deedNo); else url.searchParams.delete('deed');
+        window.history.replaceState(null, '', url);
+      }
     } catch (error) {
       console.error('[Search] Verification failed:', error);
-      if (sequence === searchSequence.current) setServiceError(true);
+      if (sequence === searchSequence.current) setServiceError('unavailable');
     } finally {
       if (sequence === searchSequence.current) setIsLoading(false);
     }
@@ -133,7 +139,7 @@ function VerificationWorkspace() {
     setPlotData(null);
     setCurrentDagNo('');
     setCurrentDeedNo(undefined);
-    setServiceError(false);
+    setServiceError(null);
     const url = new URL(window.location.href);
     url.searchParams.delete('dag');
     url.searchParams.delete('deed');
@@ -160,8 +166,8 @@ function VerificationWorkspace() {
             <div ref={resultsRef} id="results-view" tabIndex={-1} role="region" aria-label={t('অনুসন্ধানের ফলাফল', 'Search results')} aria-live="polite" className="scroll-mt-32" aria-busy={isLoading}>
               {serviceError && !isLoading && (
                 <div role="alert" className="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-sm space-y-3">
-                  <p>{t('রেকর্ড যাচাই করা যায়নি। সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।', 'Records could not be checked. Check your connection and try again.')}</p>
-                  <button type="button" onClick={() => void handleSearch(currentDagNo, currentDeedNo)} className="px-4 py-2 rounded-xl border border-rose-300 bg-white font-semibold">{t('পুনরায় চেষ্টা করুন', 'Try again')}</button>
+                  <p>{serviceError === 'invalid' ? t('নম্বরটি ঠিকভাবে লেখা হয়নি। কাগজ দেখে দাগ ও দলিলের নম্বর আবার লিখুন।', 'A number is not written correctly. Check the papers and re-enter the plot and deed numbers.') : t('রেকর্ড যাচাই করা যায়নি। সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।', 'Records could not be checked. Check your connection and try again.')}</p>
+                  {serviceError === 'invalid' ? <button type="button" onClick={() => document.getElementById('dagNoInput')?.focus()} className="px-4 py-2 rounded-xl border border-rose-300 bg-white font-semibold">{t('নম্বর ঠিক করুন', 'Correct the numbers')}</button> : <button type="button" onClick={() => void handleSearch(currentDagNo, currentDeedNo)} className="px-4 py-2 rounded-xl border border-rose-300 bg-white font-semibold">{t('পুনরায় চেষ্টা করুন', 'Try again')}</button>}
                 </div>
               )}
               {!isLoading && hasSearched && result && plotData && <VerificationResultView result={result} plotData={plotData} source={dataSource} onReset={handleReset} />}
