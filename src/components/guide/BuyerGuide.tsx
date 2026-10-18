@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageProvider';
 
 const checks = [
@@ -38,43 +38,95 @@ const checks = [
 
 type PaperStatus = 'missing' | 'collected' | 'mismatch';
 
-export function BuyerGuide({ onTryDemo }: { onTryDemo: () => void }) {
+const topics = [
+  ['মালিকের পরিচয়', 'Owner identity', 'বিক্রেতা ও জমির কাগজ মিলিয়ে নিন', 'Compare the seller and land papers'],
+  ['নামজারির ইতিহাস', 'Mutation history', 'এখনকার ও আগের নামজারি দেখুন', 'Check current and earlier mutation papers'],
+  ['মামলার খোঁজ', 'Court cases', 'মামলা বা নিষেধাজ্ঞার খোঁজ নিন', 'Look for cases or court orders'],
+  ['খাস জমির খোঁজ', 'Khas land', 'জমি সরকারি খাস কি না জানুন', 'Ask whether the land is government khas'],
+  ['অধিগ্রহণের খোঁজ', 'Acquisition', 'সরকারি নোটিশ আছে কি না দেখুন', 'Check for acquisition notices'],
+] as const;
+
+export function BuyerGuide({ onTryDemo, motionPaused, onToggleMotion }: {
+  onTryDemo: () => void;
+  motionPaused: boolean;
+  onToggleMotion: () => void;
+}) {
   const { t, language } = useLanguage();
   const [papers, setPapers] = useState<Record<string, PaperStatus>>({});
   const count = Object.values(papers).filter(value => value === 'collected').length;
   const mismatch = Object.values(papers).includes('mismatch');
   const pick = (value: readonly [string, string]) => t(value[0], value[1]);
+  const number = (value: number) => value.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US');
+  const goToSection = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = document.getElementById(event.currentTarget.hash.slice(1));
+    if (!target) return;
+    event.preventDefault();
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: 'start', behavior: motionPaused || window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  };
 
   return <div className="space-y-6 buyer-guide">
-    <section className="workspace-intro" aria-labelledby="buyer-guide-title">
-      <div>
-        <p className="text-sm font-semibold text-emerald-800 mb-2">{t('জমি কেনার আগে · ৫টি জরুরি খোঁজ', 'Before buying land · 5 essential checks')}</p>
-        <h1 id="buyer-guide-title">{t('টাকা দেওয়ার আগে, কাগজ মিলিয়ে নিন', 'Check the papers before you pay')}</h1>
-        <p className="workspace-description">{t('কোন কাগজ লাগবে, কোথায় খোঁজ নেবেন—ধাপে ধাপে দেখুন।', 'See which papers to ask for and where to check them, step by step.')}</p>
+    <section id="guide-start" tabIndex={-1} className="guide-welcome guide-destination" aria-labelledby="buyer-guide-title">
+      <div className="guide-welcome-copy">
+        <p className="guide-eyebrow"><span aria-hidden="true">✦</span> {t('জমি কেনার আগে · আপনার সহায়িকা', 'Your guide · before buying land')}</p>
+        <h1 id="buyer-guide-title">{t('জমি কিনবেন?\nশুরু করুন এখান থেকে।', 'Buying land?\nStart right here.')}</h1>
+        <p className="guide-lead">{t('কোন কাগজ লাগবে, কোথায় খোঁজ নেবেন আর অমিল পেলে কী করবেন—সহজ পাঁচটি ধাপে জানুন।', 'Learn which papers to collect, where to check them and what to do if they differ, in five simple steps.')}</p>
+        <div className="guide-welcome-actions print:hidden">
+          <a href="#guide-papers" onClick={goToSection} className="guide-start-button">{t('শুরু করি', 'Let’s begin')} <span aria-hidden="true">→</span></a>
+          <button type="button" onClick={onToggleMotion} aria-pressed={motionPaused} className="guide-motion-toggle">{motionPaused ? t('অ্যানিমেশন চালু করুন', 'Turn animations on') : t('অ্যানিমেশন বন্ধ করুন', 'Turn animations off')}</button>
+        </div>
+        <p className="guide-intro-boundary">{t('আসল কাগজ আপলোড লাগে না। এখানে সরকারি রেকর্ড এনে যাচাই করা হয় না।', 'No private document uploads. We do not retrieve or verify government records here.')}</p>
+      </div>
+      <div className="guide-how" aria-labelledby="guide-how-title">
+        <h2 id="guide-how-title">{t('যেভাবে ব্যবহার করবেন', 'How to use this guide')}</h2>
+        <ol>
+          {[
+            [t('কাগজ হাতে নিন', 'Gather your papers'), t('নিচের তালিকা দেখে বিক্রেতার কাছে কাগজ চান।', 'Use the checklist below to ask the seller for papers.')],
+            [t('পাঁচটি বিষয় দেখুন', 'Explore the five checks'), t('যা মিলাবেন ও যে অফিসে যাবেন, তা প্রতিটি ধাপে আছে।', 'Each step shows what to compare and which office to ask.')],
+            [t('নিজের প্রস্তুতি চিহ্ন দিন', 'Mark your preparation'), t('কাগজ পেয়েছেন, নাকি অমিল আছে—বেছে রাখুন।', 'Mark whether you have the papers or found a difference.')],
+          ].map(([title, body], index) => <li key={index}><span className="guide-how-number" aria-hidden="true">{number(index + 1)}</span><div><h3>{title}</h3><p>{body}</p></div></li>)}
+        </ol>
       </div>
     </section>
+    <nav id="guide-topics" tabIndex={-1} aria-labelledby="guide-topics-title" className="guide-topics guide-destination print:hidden">
+      <div className="guide-section-heading"><h2 id="guide-topics-title">{t('কোন বিষয়টি দেখতে চান?', 'What would you like to check?')}</h2><p>{t('বিষয়ে চাপ দিন, সেই ধাপে চলে যান।', 'Choose a topic to go straight to that step.')}</p></div>
+      <div className="guide-topic-grid">
+        {checks.map((check, index) => <a key={check.id} href={`#check-${check.id}`} onClick={goToSection} className="guide-topic-link" style={{ animationDelay: `${index * 55}ms` }}>
+          <span className="guide-topic-number" aria-hidden="true">{number(index + 1)}</span>
+          <span><strong>{t(topics[index][0], topics[index][1])}</strong><small>{t(topics[index][2], topics[index][3])}</small></span>
+          <span className="guide-topic-arrow" aria-hidden="true">↗</span>
+        </a>)}
+      </div>
+    </nav>
     <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 space-y-2">
       <p className="font-bold">{t('সরকারি সেবার পথ দেখাই; সরকারি রেকর্ড এখানে আনা হয় না।', 'We guide you to official services; we do not retrieve government records here.')}</p>
       <p>{t('TreeTweet একটি স্বাধীন সহায়ক প্রকল্প, সরকারি ওয়েবসাইট নয়। বোতাম চাপলে বাইরের সরকারি সাইট খুলবে; সেখানে নিবন্ধন বা আবেদন লাগতে পারে।', 'TreeTweet is an independent guidance project, not a government website. Buttons open external official sites, which may require registration or an application.')}</p>
     </div>
-    <section className="rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="papers-heading">
+    <section id="guide-papers" tabIndex={-1} className="guide-destination rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="papers-heading">
       <h2 id="papers-heading" className="text-lg font-bold">{t('আগে এই তথ্যগুলো হাতে রাখুন', 'Have these details ready')}</h2>
       <p className="text-sm leading-7 text-slate-700">{t('জেলা → উপজেলা → মৌজা → জরিপের ধরন → খতিয়ান ও দাগ নম্বর। সঙ্গে দলিলের নম্বর, সাল ও সাব-রেজিস্ট্রি অফিসের নাম।', 'District → upazila → mouza → survey type → khatian and plot number. Also keep the deed number, year and sub-registry office name.')}</p>
       <p className="text-sm text-slate-600">{t('এই পাতায় আসল নাম, পরিচয়পত্র বা দলিল আপলোড করতে হবে না।', 'You do not need to enter real names or upload identity documents or deeds on this page.')}</p>
-      <a href="#buyer-checks" className="inline-flex min-h-11 items-center rounded-xl bg-emerald-900 px-5 py-2 font-semibold text-white">{t('৫টি ধাপ দেখুন ↓', 'See the 5 steps ↓')}</a>
+      <a href="#check-owner" onClick={goToSection} className="guide-start-button print:hidden">{t('প্রথম ধাপ: মালিকের পরিচয়', 'Step 1: Owner identity')} <span aria-hidden="true">→</span></a>
     </section>
     <div id="buyer-checks" className="scroll-mt-36 grid gap-4 md:grid-cols-2">
-      {checks.map((check, index) => <section key={check.id} aria-labelledby={`guide-${check.id}`} className="rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 space-y-4">
+      {checks.map((check, index) => <section key={check.id} id={`check-${check.id}`} tabIndex={-1} data-paper-status={papers[check.id] || 'missing'} aria-labelledby={`guide-${check.id}`} className="guide-check guide-destination rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 space-y-4">
         <div className="flex items-center gap-3"><span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 font-bold text-emerald-900">{(index + 1).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}</span><h2 id={`guide-${check.id}`} className="text-lg font-bold text-emerald-950">{pick(check.title)}</h2></div>
-        <p className="text-sm leading-7 text-slate-700">{pick(check.body)}</p>
-        <p className="text-sm leading-7 text-slate-600">{pick(check.office)}</p>
+        <div><h3 className="guide-instruction-label">{t('যা মিলিয়ে দেখবেন', 'What to compare')}</h3><p className="text-sm leading-7 text-slate-700">{pick(check.body)}</p></div>
+        <div><h3 className="guide-instruction-label">{t('যেখানে সাহায্য পাবেন', 'Where to get help')}</h3><p className="text-sm leading-7 text-slate-600">{pick(check.office)}</p></div>
         <div className="flex flex-col items-start gap-2">{check.links.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className="guide-official-link"><span>{t(link.bn, link.en)} <span aria-hidden="true">↗</span></span><span className="text-xs font-normal text-slate-600">{new URL(link.href).hostname} · {t('নতুন ট্যাব', 'new tab')}</span></a>)}</div>
         <label htmlFor={`paper-${check.id}`} className="block text-sm font-semibold">{t('নিজের প্রস্তুতি চিহ্নিত করুন', 'Track your preparation')}</label>
         <select id={`paper-${check.id}`} aria-label={`${t('প্রস্তুতি', 'Preparation')}: ${pick(check.title)}`} value={papers[check.id] || 'missing'} onChange={event => setPapers(previous => ({ ...previous, [check.id]: event.target.value as PaperStatus }))} className="w-full rounded-xl border border-slate-300 bg-white p-3 text-base">
           <option value="missing">{t('এখনো কাগজ জোগাড় হয়নি', 'Papers not yet collected')}</option>
-          <option value="collected">{t('কাগজ জোগাড় করেছি', 'Papers collected')}</option>
+          <option value="collected">{t('কাগজ আছে, মিলিয়ে দেখব', 'Papers collected, ready to compare')}</option>
           <option value="mismatch">{t('অমিল আছে / সাহায্য দরকার', 'Difference found / need help')}</option>
         </select>
+        {papers[check.id] === 'collected' && <p className="guide-mark-feedback" role="status"><span aria-hidden="true">✓</span> {t('কাগজ পাওয়ার চিহ্ন রাখা হয়েছে। এখন তথ্য মিলিয়ে দেখুন।', 'Marked as collected. Now compare the details.')}</p>}
+        {papers[check.id] === 'mismatch' && <p className="guide-mark-feedback guide-mark-warning" role="status">{t('অমিল থাকলে টাকা দেওয়ার আগে সংশ্লিষ্ট অফিসে সাহায্য নিন।', 'If details differ, ask the relevant office for help before paying.')}</p>}
+        <div className="guide-step-navigation print:hidden">
+          <a href={index < checks.length - 1 ? `#check-${checks[index + 1].id}` : '#preparation'} onClick={goToSection} className="guide-next-link">{index < checks.length - 1 ? t(`পরের ধাপ: ${topics[index + 1][0]}`, `Next: ${topics[index + 1][1]}`) : t('প্রস্তুতির তালিকা দেখুন', 'See your preparation checklist')} <span aria-hidden="true">→</span></a>
+          <a href="#guide-topics" onClick={goToSection} className="guide-back-link">{t('সব বিষয় ↑', 'All topics ↑')}</a>
+        </div>
       </section>)}
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6 space-y-4" aria-labelledby="help-heading">
         <h2 id="help-heading" className="text-lg font-bold text-amber-950">{t('বুঝতে সমস্যা হলে সাহায্য নিন', 'Get help when something is unclear')}</h2>
@@ -83,11 +135,12 @@ export function BuyerGuide({ onTryDemo }: { onTryDemo: () => void }) {
         <p className="text-sm leading-7 text-amber-950">{t('টাকা দেওয়ার আগে মূল কাগজ, জমির অবস্থান ও দখল মিলিয়ে নিন। প্রয়োজনে ভূমি বিষয়ে অভিজ্ঞ আইনজীবীর সহায়তা নিন।', 'Before paying, compare original papers, the land’s location and possession. Seek help from a lawyer experienced in land matters when needed.')}</p>
       </section>
     </div>
-    <section className="rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="preparation-heading">
+    <section id="preparation" tabIndex={-1} className="guide-destination rounded-2xl bg-white border border-slate-200 p-5 space-y-3" aria-labelledby="preparation-heading">
       <h2 id="preparation-heading" className="text-lg font-bold">{t('আপনার প্রস্তুতির তালিকা', 'Your preparation checklist')}</h2>
-      <p role="status" className="font-semibold text-emerald-900">{t(`কাগজ জোগাড়: ${count.toLocaleString('bn-BD')}/৫`, `Papers collected: ${count}/5`)}</p>
+      <p role="status" className="font-semibold text-emerald-900 tabular-nums">{t(`কাগজ জোগাড়: ${count.toLocaleString('bn-BD')}/৫`, `Papers collected: ${count}/5`)}</p>
+      <div className="guide-preparation-track" aria-hidden="true"><span style={{ transform: `scaleX(${count / checks.length})` }} /></div>
       {mismatch && <p role="alert" className="text-sm font-semibold text-rose-800">{t('আপনি অমিল চিহ্নিত করেছেন। টাকা দেওয়ার আগে সংশ্লিষ্ট অফিসে মিলিয়ে নিন।', 'You marked a difference. Resolve it with the relevant office before paying.')}</p>}
-      <p className="text-sm text-slate-600">{t('এটি আপনার নিজের দেওয়া চিহ্ন, জমি নিরাপদ হওয়ার সনদ নয়। পাতা রিলোড করলে চিহ্ন মুছে যাবে।', 'These are your own marks, not a land clearance certificate. Reloading clears the marks.')}</p>
+      <p className="text-sm text-slate-600">{t('কাগজ জোগাড় মানে যাচাই শেষ নয়। এটি আপনার নিজের দেওয়া চিহ্ন, জমি নিরাপদ হওয়ার সনদ নয়। পাতা রিলোড করলে চিহ্ন মুছে যাবে।', 'Collecting papers does not mean verification is complete. These are your own marks, not a land clearance certificate. Reloading clears the marks.')}</p>
       <div className="flex flex-wrap gap-3 print:hidden"><button type="button" onClick={() => window.print()} className="min-h-11 rounded-xl border border-slate-300 px-4 py-2 font-semibold">{t('তালিকা প্রিন্ট করুন', 'Print checklist')}</button><button type="button" onClick={() => setPapers({})} className="min-h-11 rounded-xl border border-slate-300 px-4 py-2">{t('চিহ্ন মুছুন', 'Clear marks')}</button></div>
     </section>
     <details className="rounded-2xl border border-slate-200 bg-white p-5 text-sm leading-7">
