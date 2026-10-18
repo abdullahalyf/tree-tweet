@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "puku1/**",
+    "puku2/**",
+    "puku3/**",
+    "artifacts/**",
   ]),
 ]);
 

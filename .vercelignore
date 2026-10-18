@@ -1,0 +1,9 @@
+puku1
+puku2
+puku3
+.superpowers
+artifacts
+.env
+.env.*.local
+node_modules
+.next

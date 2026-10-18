@@ -7,10 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "seed": "node scripts/seed.mjs",
-    "test:cases": "npx tsx scripts/verify-cases.mjs",
-    "test:unit": "npx tsx tests/unit-tests.test.ts && npx tsx tests/phase4-tests.test.ts",
-    "test": "npm run test:cases && npm run test:unit"
+    "test:cases": "tsx scripts/verify-cases.mjs",
+    "test:unit": "tsx tests/unit-tests.test.ts && tsx tests/phase4-tests.test.ts",
+    "test:reliability": "tsx tests/reliability-tests.test.ts",
+    "test:presentation": "node tests/presentation-tests.test.mjs",
+    "test": "npm run test:cases && npm run test:unit && npm run test:reliability && npm run test:presentation"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -21,6 +24,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -28,6 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

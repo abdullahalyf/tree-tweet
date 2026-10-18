@@ -1,270 +1,109 @@
-# AI-Assisted Pre-Purchase Land Verification System (জমি কেনার আগে ঝুঁকি যাচাইকরণ)
+﻿# TreeTweet · জমি কেনার আগে ঝুঁকি যাচাই
 
-> **LandTech Innovation Hackathon 2026 — Problem P5: Check Before You Buy**  
-> A citizen-facing, Bengali-first pre-purchase risk assessment platform that performs seven deterministic legal and cryptographic integrity checks to safeguard land buyers against fraud, double-sale, and legal encumbrances before committing financial transactions.
+[Live demo / সরাসরি ডেমো](https://treetweet.vercel.app) · LandTech Innovation Hackathon 2026 · Problem P5: Check Before You Buy
 
----
+TreeTweet is a Bangla/English prototype for checking potential land-purchase risks in supplied records. Its assessment uses deterministic rules and SHA-256 integrity checks; it does not use an AI model to decide ownership. The demo uses synthetic records and has no connection to government land systems.
 
-## ⚠️ গুরুত্বপূর্ণ আইনি ঘোষণা (Statutory Prototype Disclaimer)
+TreeTweet প্রদত্ত রেকর্ডের ভিত্তিতে জমি কেনার সম্ভাব্য ঝুঁকি দেখানোর বাংলা/ইংরেজি প্রটোটাইপ। মূল্যায়নে নির্ধারিত নিয়ম ও SHA-256 অখণ্ডতা পরীক্ষা ব্যবহৃত হয়; মালিকানা নির্ধারণে কোনো AI মডেল ব্যবহার হয় না। ডেমোর তথ্য কাল্পনিক এবং সরকারি ভূমি ব্যবস্থার সাথে কোনো সংযোগ নেই।
 
-> **আইনি সতর্কবার্তা ও সীমাবদ্ধতা:**  
-> এই অ্যাপ্লিকেশনটি শুধুমাত্র প্রাথমিক প্রযুক্তিগত ঝুঁকি মূল্যায়ন (Pre-Purchase Risk Assessment & Decision Support) এর উদ্দেশ্যে তৈরি একটি হ্যাকাথন প্রটোটাইপ (MVP)।  
-> **এটি বাংলাদেশ সরকারের কোনো অফিসিয়াল স্বত্বাধিকার সনদ, সরকারি নামজারি অনুমোদন বা আইনি ছাড়পত্র নয়।**  
-> জমি ক্রয়ের যেকোনো আর্থিক বা আইনি পদক্ষেপ গ্রহণের পূর্বে সহকারী কমিশনার (ভূমি) অফিস, সংশ্লিষ্ট সাব-রেজিস্ট্রি অফিসের বালাম বই এবং দেওয়ানি আদালতের রেকর্ড সরেজমিনে যাচাই করা নাগরিকের আবশ্যকীয় দায়িত্ব।
+## English
 
----
+### Try the workflows
 
-## 👥 টিম পরিচিতি (Team Information)
+The interface starts in Bangla. Use the language toggle at the top to switch to English; the browser remembers your choice when storage is available. Recorded names and identifiers remain unchanged.
 
-- **দল (Team):** Hector
-- **টিম লিডার (Team Leader):** MD IRFANUL HOQUE TASEEN
-- **টিম সদস্য (Team Member):** Abdullah Alif
-- **অনুষদীয় মেন্টর (Faculty Mentor):** Md. Sagar Hossen
+- **Search:** enter a plot (dag) number using Bangla or English digits, a deed number, or both. Leading zeros matter. Try the eight synthetic cases A–H: A/B have no detected risk in supplied records, C has a name variation, D a mortgage, E possible double sale, F an owner/seller mismatch, G excess sale area, and H a hash mismatch.
+- **Read the assessment:** inspect reported issues, check availability, original record details and next steps. Green means only that the defined checks detected no risk in the supplied evidence. Missing or inconsistent evidence cannot establish safe ownership.
+- **Register a demo deed:** fill sample details, submit synthetic information, then view its fingerprint, download or print the QR receipt, and check the deed. Demo registration is disabled when Supabase is configured.
+- **QR tools:** paste a lookup link/code or choose a sample. Camera decoding uses the browser's native detector where supported; otherwise use the manual fallback. Camera access requires permission and a secure context, such as HTTPS or localhost.
+- **Tamper lab:** change a disposable deed copy and compare fingerprints. Reset restores the copy. The mutation approval demonstration changes simulated state only.
 
----
+A matching hash indicates consistency with the stored fingerprint; it does not establish the truth of the original record, seller authority or legal ownership. This prototype is not government verification, legal advice or an ownership certificate. Obtain original records and qualified professional review before any real transaction.
 
-## 🎯 সমস্যা ও সমাধান (Problem & Solution)
+### Data and persistence
 
-### ১. সমস্যা প্রেক্ষাপট (Problem Context: P5)
-বাংলাদেশে জমি কেনা সাধারণ নাগরিকদের জীবনের অন্যতম প্রধান অর্থনৈতিক বিনিয়োগ। কিন্তু প্রচলিত ভূমি ব্যবস্থায় তথ্যের অসঙ্গতি, অসদুপায় ও অসচেতনতার কারণে সাধারণ ক্রেতারা প্রতিনিয়ত নানাবিধ ঝুঁকিতে পড়েন:
-1. **দ্বৈত বিক্রি (Double-Sale Fraud):** একই দাগের জমি একাধিক ব্যক্তির কাছে গোপনে রেজিস্ট্রি করে বিক্রি করা।
-2. **মালিকানার নাম বা পদবীর অমিল (Owner Name Variation):** খতিয়ানের রেকর্ডীয় নামের সাথে বিক্রেতার এনআইডি বা দলিলের নামের গড়মিল।
-3. **অননুমোদিত এলাকা হস্তান্তর (Excessive Area Sale):** অবশিষ্ট রেকর্ডীয় জমির চেয়ে বেশি জমি লিখে দেওয়া।
-4. **অসম্পূর্ণ নামজারি (Pending / Uncompleted Mutation):** নামজারি সম্পন্ন না করেই জমি বিক্রি করার চেষ্টা।
-5. **সরকারি খাস জমি (Khas Land):** সরকারি বা বন্টনযোগ্য নয় এমন জমি ব্যক্তিগত নামে বিক্রির অপচেষ্টা।
-6. **আর্থিক বা আইনি স্থিতি (Encumbrance):** জমিতে ব্যাংক বন্ধক (Mortgage) বা দেওয়ানি মামলা (Court Case) থাকা সত্ত্বেও তথ্য গোপন রাখা।
-7. **নথি বিকৃতি (Document Tampering):** সাব-রেজিস্ট্রির মূল বালাম বা বায়নানামার পাতা ও সংখ্যা জালিয়াতি।
+Without Supabase configuration, the app reads bundled synthetic fixtures. Custom demo registration computes a fingerprint on the server and returns a receipt. The browser restores that receipt into its local demo registry and attempts to cache it in `localStorage`. Browser storage can be blocked or cleared; server memory can disappear or differ between serverless instances. This is not a durable shared registry.
 
-### ২. আমাদের সমাধান (Our Solution)
-একটি আধুনিক, মোবাইল-বান্ধব, বাংলা ভাষার ইন্টারফেস যা নাগরিকদের হাতে জমির দাগ ও দলিল নম্বরের ভিত্তিতে তাৎক্ষণিক প্রযুক্তিগত বিশ্লেষণ তুলে ধরে। সিস্টেমটি তথ্যের ওপর ভিত্তি করে ৩টি সুস্পষ্ট ট্রাফিক-লাইট স্থিতি প্রদর্শন করে:
-- **সবুজ (GREEN):** *“প্রদত্ত রেকর্ডে নির্ধারিত পরীক্ষায় ঝুঁকি শনাক্ত হয়নি”* (নোট: কখনোই “নিরাপদ জমি” বা “মালিকানা নিশ্চিত” দাবি করা হয় না)।
-- **হলুদ (YELLOW):** *“সতর্কতা — অতিরিক্ত যাচাই প্রয়োজন”* (যেমন: ব্যাংকে বন্ধক বা নামের পদবীতে সামান্য পার্থক্য)।
-- **লাল (RED):** *“গুরুতর ঝুঁকি শনাক্ত হয়েছে”* (যেমন: দ্বৈত বিক্রি, অননুমোদিত বিক্রেতা, খাস জমি, বা ক্রিপ্টোগ্রাফিক হ্যাশ অমিল)।
+**A custom deed QR contains lookup identifiers, not the receipt itself.** Another browser/device may not have the custom receipt and may find no record. Use bundled samples for cross-device demonstrations. No record found is not proof of safe ownership.
 
----
+Optional Supabase mode reads records from your configured PostgreSQL database, which can persist across browsers and server restarts. That database is not a government source. The supplied migration allows public reads under Row Level Security (RLS); populate it only with synthetic data and review policies before changing its purpose. Synthetic registration does not write to Supabase.
 
-## ✨ প্রধান বৈশিষ্ঠ্যসমূহ (Key Features)
+### Local setup
 
-1. **নাগরিক অনুসন্ধান (Citizen Search):**
-   - বাংলা বা ইংরেজি সংখ্যায় দাগ নম্বর (যেমন: `০১০১` বা `0101`, শূন্য অক্ষুণ্ণ রেখে) ও দলিল নম্বর দিয়ে তাৎক্ষণিক অনুসন্ধান।
-   - বিচারক ও নাগরিকদের দ্রুত পরীক্ষার জন্য ৮টি প্রি-লোডেড সিন্থেটিক কেস (A থেকে H) এক ক্লিকে লোড করার সুবিধা।
-   - অজানা দাগ নম্বরের জন্য মার্জিত ও তথ্যবহুল নো-রেজাল্ট স্টেট।
-2. **৭টি নির্ণায়ক পরীক্ষা (Seven Deterministic Checks):**
-   - সার্ভার-সাইডে পিওর ফাংশন ও ট্রাফিক-লাইট লজিকের মাধ্যমে ঝুঁকি মূল্যায়ন।
-3. **ক্যানোনিকাল SHA-256 ক্রিপ্টোগ্রাফিক হ্যাশিং (Tamper Detection):**
-   - দলিলের ৭টি তথ্যের পাইপ-ডেলিমিটেড সিরিয়ালাইজেশন করে SHA-256 ফিঙ্গারপ্রিন্ট তৈরি ও যাচাই।
-4. **ডেমো দলিল নিবন্ধন ও QR কোড (Demo Registration & QR Generation):**
-   - বিচারকদের সামনে নতুন কাল্পনিক দলিল নিবন্ধন ও তাৎক্ষণিক সার্ভার-সাইড হ্যাশ এবং স্ক্যানযোগ্য ভেরিফিকেশন QR কোড তৈরি।
-   - QR কোড ডাউনলোড ও প্রিন্ট করার সুবিধা।
-5. **নিরাপদ টেম্পারিং ল্যাব (Safe Tamper Demonstration):**
-   - মূল রেকর্ড অক্ষত রেখে ডিসপোজেবল কপিতে ১টি তথ্য (যেমন: এলাকা ৫ শতক থেকে ৮.৫ শতক) পরিবর্তন করে তাৎক্ষণিক হ্যাশ মিসম্যাচ ও সতর্কবার্তা প্রদর্শনের লাইভ ডেমো।
-6. **সিমুলেটেড নামজারি প্রক্রিয়া (Simulated Mutation Workflow):**
-   - নামজারি প্রক্রিয়াধীন থাকলে ডেমো অনুমোদন সিমুলেশন করে সিস্টেমের লাইফসাইকেল প্রদর্শনের সুবিধা (কঠোর সতর্কবার্তাসহ)।
-7. **লোকাল ডেমো মোড (Transparent Local Demo Mode):**
-   - সুপাবেজ ক্লাউড সংযোগ না থাকলেও সম্পূর্ণ অফলাইন সিন্থেটিক ফিক্সচারে নির্ভুলভাবে চলে এবং স্বচ্ছভাবে `🧪 লোকাল ডেমো রেকর্ড` লেবেল প্রদর্শন করে।
-
----
-
-## 🏛️ সিস্টেম আর্কিটেকচার ও টেক স্ট্যাক (Architecture & Tech Stack)
-
-```text
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx              # Noto Sans Bengali ফন্ট ও রুট মেটাডাটা
-│   │   ├── globals.css             # Tailwind v4 থিম
-│   │   └── page.tsx                # ইউনিফায়েড ক্লায়েন্ট ভিউ (Search, Register, Tamper)
-│   ├── components/
-│   │   ├── search/                 # সার্চ ফর্ম, বাংলা ডিজিট ও QR স্ক্যানার
-│   │   ├── verification/           # ট্রাফিক লাইট রেজাল্ট, চেকলিস্ট ও নো-রেজাল্ট ভিউ
-│   │   ├── registration/           # ডেমো দলিল নিবন্ধন ও QR কার্ড
-│   │   ├── tamper/                 # টেম্পারিং ল্যাব ও সিমুলেটেড নামজারি
-│   │   └── ui/                     # Badge, Card, Navbar কম্পোনেন্ট
-│   └── lib/
-│       ├── actions/                # Next.js Server Actions (registerSyntheticDeedAction)
-│       ├── db/                     # Supabase ক্লায়েন্ট, স্কিমা ও টাইপস
-│       ├── demo/                   # ৮টি অপরিবর্তনীয় সিন্থেটিক কেস ও ডায়নামিক রেজিস্ট্রি
-│       ├── validation/             # বাংলা ডিজিট ও স্ট্রিং নরমালাইজেশন
-│       └── verification/           # হ্যাশিং ইঞ্জিন ও ৭টি নির্ণায়ক আইনি রুলস
-├── scripts/
-│   ├── seed.mjs                    # লাইভ সুপাবেজ ডাটাবেজ সিডার
-│   └── verify-cases.mjs            # ৮টি কেসের স্বয়ংক্রিয় টেস্ট ভেরিফায়ার
-├── tests/
-│   ├── unit-tests.test.ts          # ৪১টি কোর ইউনিট টেস্ট (হ্যাশ, নাম, রুলস)
-│   └── phase4-tests.test.ts        # ৬টি ফেজ ৪ টেস্ট (রেজিস্ট্রেশন, QR, টেম্পারিং)
-├── supabase/
-│   └── migrations/                 # PostgreSQL স্কিমা (RLS পলিসিসহ)
-├── docs/
-│   ├── CONCEPT_NOTE.md             # ৪ পাতার হ্যাকাথন কনসেপ্ট নোট
-│   └── DEMO_VIDEO_SCRIPT.md        # ৩ মিনিটের টাইমস্ট্যাম্পড ভিডিও স্ক্রিপ্ট
-├── package.json
-└── README.md
-```
-
-- **Framework:** Next.js 16 (App Router, Turbopack, React 19)
-- **Language:** TypeScript 5 (Strict Mode, 100% typed)
-- **Styling:** Tailwind CSS v4, Vanilla CSS Design System, Google Noto Sans Bengali
-- **Cryptography:** Web Crypto API SHA-256, Node.js Crypto Sync Fallback
-- **QR Engine:** `qrcode` (Vector PNG Data URL Generation)
-- **Database (Optional):** Supabase PostgreSQL with Row Level Security (RLS)
-- **Offline / Local Demo:** Built-in in-memory / local storage demo registry
-
----
-
-## 🔍 ৭টি নির্ণায়ক আইনি পরীক্ষা (Seven Deterministic Checks)
-
-| ক্রম | পরীক্ষার নাম | মূল্যায়ন নীতি (Evaluation Logic) | সম্ভাব্য ফলাফল |
-| :---: | :--- | :--- | :---: |
-| **১** | **দলিল ক্রিপ্টোগ্রাফিক হ্যাশ (SHA-256)** | দলিলের ৭টি তথ্যের হ্যাশ সংরক্ষিত ডাটাবেজ হ্যাশের সাথে মেলানো হয়। | পাস / **RED** (টেম্পারিং শনাক্ত) |
-| **২** | **দ্বৈত বিক্রি পরীক্ষা (Double-Sale)** | একই দাগের বিপরীতে একাধিক সক্রিয় (`active`) রেজিস্ট্রিকৃত দলিল বিদ্যমান কিনা। | পাস / **RED** (দ্বৈত বিক্রির ঝুঁকি) |
-| **৩** | **মালিক ও বিক্রেতার মিল (Seller Match)** | খতিয়ানের রেকর্ডীয় মালিকের নামের সাথে দলিলের বিক্রেতার নাম তুলনা (উপাধি বা বানানের ক্ষেত্রে সতর্কবার্তা)। | পাস / **YELLOW** / **RED** |
-| **৪** | **জমির পরিমাণ অখণ্ডতা (Area Limit)** | প্রস্তাবিত বা হস্তান্তরিত জমির পরিমাণ খতিয়ানের অবশিষ্ট জমির চেয়ে বেশি কিনা। | পাস / **RED** (অতিরিক্ত জমির আবেদন) |
-| **৫** | **নামজারি স্থিতি (Mutation Status)** | সংশ্লিষ্ট খতিয়ানের নামজারি সম্পন্ন (`done`) হয়েছে কিনা। | পাস / **YELLOW** (নামজারি প্রক্রিয়াধীন বা অসম্পূর্ণ) |
-| **৬** | **খাস জমি প্রতিরোধ (Khas Land)** | খতিয়ানের জমির ধরন ১ নং সরকারি খাস জমি (`khas`) কিনা। | পাস / **RED** (সরকারি খাস জমি ক্রয় নিষিদ্ধ) |
-| **৭** | **বন্ধক ও আদালতের মামলা (Encumbrance)** | দাগের আইনি স্থিতিতে ব্যাংক বন্ধক (`mortgaged`) বা দেওয়ানি মামলা (`court_case`) আছে কিনা। | পাস / **YELLOW** (বন্ধক) / **RED** (মামলা) |
-
----
-
-## 🔐 SHA-256 ক্রিপ্টোগ্রাফিক হ্যাশিং ও তার সীমাবদ্ধতা
-
-### ক্যানোনিকাল সিরিয়ালাইজেশন ফরম্যাট:
-যেকোনো দলিল হ্যাশ করার পূর্বে নির্ধারিত ৭টি তথ্যকে নির্দিষ্ট ফরম্যাটে পাইপ (`|`) চিহ্ন দিয়ে যুক্ত করা হয়:
-```
-deed_no|dag_no|seller|buyer|area_formatted|date|prev_hash
-```
-*উদাহরণ:*
-```
-DEED-2024-0001|0101|কাল্পনিক আব্দুর রহমান|কাল্পনিক রফিকুল ইসলাম|5.0000|2024-01-15|GENESIS-0000-0000-0000-000000000001
-```
-এর ফলে উৎপন্ন হয় ৬৪ অক্ষরের হেক্সাডেসিমেল ডাইজেস্ট (SHA-256):
-```
-f5e09e09af91efb48fc6b19971d1489d492314b41a93e5af7b26cd0bf9389f2e
-```
-
-### হ্যাশিং যা প্রমাণ করে এবং যা প্রমাণ করে না:
-- **যা প্রমাণ করে:** দলিলের সংরক্ষিত ডিজিটাল রেকর্ডের একটি অক্ষর, সংখ্যা বা স্পেসও পরবর্তীতে পরিবর্তন (Tamper) করা হয়নি।
-- **যা প্রমাণ করে না:** হ্যাশ ম্যাচ থাকা মানেই বিক্রেতা জমির আইনসম্মত প্রকৃত মালিক তা স্বয়ংক্রিয়ভাবে নিশ্চিত হয় না। বিক্রেতা যদি জাল কাগজ তৈরি করে প্রথম দিন থেকেই সিস্টেমে ইনপুট দেয়, তবে হ্যাশ ম্যাচ করলেও জমিটি জাল হতে পারে। এজন্য ক্রিপ্টোগ্রাফির সাথে আইনি বালাম তল্লাশি অপরিহার্য।
-
----
-
-## 📱 QR কোড ওয়ার্কফ্লো
-
-1. **উৎপাদন:** নতুন ডেমো দলিল নিবন্ধনের সময় সার্ভার স্বয়ংক্রিয়ভাবে অভ্যন্তরীণ ভেরিফিকেশন ইউআরএল তৈরি করে: `/?dag=0909&deed=DEED-2026-9001`।
-2. **স্ক্যানিং:** 
-   - যেকোনো স্ট্যান্ডার্ড ক্যামেরা দিয়ে স্ক্যান করলে ব্যবহারকারী সরাসরি এই অ্যাপের ভেরিফিকেশন রেজাল্ট পেজে চলে আসবেন।
-   - অ্যাপের ভেতরে থাকা **📷 QR কোড স্ক্যানার** ব্যবহার করে ব্রাউজার ক্যামেরা, বিচারকদের জন্য ৪টি নমুনা প্রি-সেট বাটন অথবা ম্যানুয়াল লিংক পেস্টের মাধ্যমে যাচাই করা যায়।
-3. **গোপনীয়তা:** QR কোডে কোনো এনআইডি, মোবাইল নম্বর বা সংবেদনশীল ব্যক্তিগত তথ্য সংরক্ষিত থাকে না; শুধুমাত্র সিস্টেমের রেফারেন্স সংরক্ষিত হয়।
-
----
-
-## 🧪 ৮টি টেস্ট কেসের বিবরণ (Test Cases A to H)
-
-বিচারক ও পরীক্ষকদের জন্য সিস্টেমে ৮টি আইসোলেটেড সিন্থেটিক কেস সংরক্ষিত রয়েছে:
-
-| কেস কোড | দাগ নম্বর | দলিল নম্বর | প্রত্যাশিত স্ট্যাটাস | মূল কারণ / ঝুঁকি |
-| :---: | :---: | :---: | :---: | :--- |
-| **Case A** | `0101` | `DEED-2024-0001` | 🟢 **GREEN** | শতভাগ পরিচ্ছন্ন রেকর্ড; কোনো ঝুঁকি নেই। |
-| **Case B** | `0202` | `DEED-2024-0002` | 🟢 **GREEN** | রূপনগর মৌজার ভিন্ন নামে আরেকটি সম্পূর্ণ পরিচ্ছন্ন কেস। |
-| **Case C** | `0303` | `DEED-2024-0003` | 🟡 **YELLOW** | নামের পদবীতে সামান্য পার্থক্য ("মোহাম্মদ" বনাম "মো:")। |
-| **Case D** | `0404` | `DEED-2024-0004` | 🟡 **YELLOW** | জমিতে সক্রিয় ব্যাংক বন্ধক (Mortgaged) রয়েছে। |
-| **Case E** | `0505` | `DEED-2024-0005B` | 🔴 **RED** | একই দাগে একাধিক সক্রিয় রেজিস্ট্রি (দ্বৈত বিক্রির ঝুঁকি)। |
-| **Case F** | `0606` | `DEED-2024-0006` | 🔴 **RED** | রেকর্ডীয় মালিক ও বিক্রেতার সম্পূর্ণ অমিল। |
-| **Case G** | `0707` | `DEED-2024-0007` | 🔴 **RED** | রেকর্ডীয় অবশিষ্ট জমির চেয়ে বেশি জমির বিক্রির চেষ্টা। |
-| **Case H** | `0808` | `DEED-2024-0008` | 🔴 **RED** | দলিল ক্রিপ্টোগ্রাফিক হ্যাশ অমিল / টেম্পারিং শনাক্ত। |
-
----
-
-## 💻 লোকাল সেটআপ ও ইন্সটলেশন গাইড
-
-### পূর্বশর্ত:
-- **Node.js:** সংস্করণ `20.x` বা `22.x` (LTS প্রস্তাবিত)
-- **npm:** সংস্করণ `10.x` বা তদূর্ধ্ব
-- **Git**
-
-### ধাপসমূহ:
+Use **Node.js 22+ on an LTS release**, npm and Git. From this repository:
 
 ```bash
-# ১. রিপোজিটরি ক্লোন করুন
-git clone <your-repository-url>
-cd "Landtech Hackathon"
-
-# ২. ডিপেন্ডেন্সি ইন্সটল করুন
-npm install
-
-# ৩. (ঐচ্ছিক) এনভায়রনমেন্ট ফাইল সেটআপ
-# নোট: লোকাল ডেমো মোডে অ্যাপ চালানোর জন্য কোনো ডাটাবেজ কী প্রয়োজন নেই।
-cp .env.example .env.local
-
-# ৪. ডেভেলপমেন্ট সার্ভার চালু করুন
+npm ci
 npm run dev
 ```
 
-ব্রাউজারে ওপেন করুন: `http://localhost:3000`
-
----
-
-## 🧪 স্বয়ংক্রিয় টেস্ট রান করার নিয়ম
-
-প্রজেক্টে **৮টি আইসোলেটেড কেস টেস্ট** এবং **৪৭টি গভীর ইউনিট টেস্ট** অন্তর্ভুক্ত রয়েছে:
+Open [localhost:3000](http://localhost:3000). No database credentials are needed for the synthetic demo. To run a production build locally:
 
 ```bash
-# ৮টি সিন্থেটিক কেস (A to H) পরীক্ষা:
+npm run build
+npm start
+```
+
+For optional Supabase reads, copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Apply the SQL in [supabase/migrations](supabase/migrations) to your intended demo database and review its RLS policies. Restart the app after changing environment variables. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only; never prefix it with `NEXT_PUBLIC_`, commit it or expose it in the browser. `npm run seed` populates the configured database with sample data; review its target before running it.
+
+### Checks and project documents
+
+```bash
+npm test                   # cases, unit, reliability and presentation suites
 npm run test:cases
-
-# ৪৭টি স্বয়ংক্রিয় ইউনিট টেস্ট পরীক্ষা (হ্যাশ, নাম, ডিজিট, রুলস, ফেজ ৪):
 npm run test:unit
-
-# সম্পূর্ণ টেস্ট স্যুট একসাথে পরীক্ষা:
-npm test
-
-# টাইপস্ক্রিপ্ট টাইপ চেক:
-npx tsc --noEmit
-
-# কোড লিন্টিং:
+npm run test:reliability
+npm run test:presentation
+npm run typecheck
 npm run lint
-
-# প্রোডাকশন বিল্ড যাচাই:
 npm run build
 ```
 
-### টেস্ট ফলাফলের প্রমাণ:
-- `npm run test:cases`: 8/8 Passed (100%)
-- `npm run test:unit`: 47/47 Passed (100%)
-- `npx tsc --noEmit`: 0 errors
-- `npm run lint`: 0 errors, 0 warnings
-- `npm run build`: Static compilation clean (4/4 pages in Turbopack)
+These commands are verification instructions, not a claim that every check passed on your machine. Current evidence, known limitations and manual steps are recorded in [the acceptance checklist](docs/ACCEPTANCE_CHECKLIST.md) and [progress log](docs/PROGRESS.md).
 
----
+The app uses Next.js, React, TypeScript, Tailwind CSS, Web Crypto SHA-256 and `qrcode`, with optional Supabase reads. Verification runs in the application's demo/read workflow; registration hashing is a server action and the tamper lab runs in the browser. Do not assume all checks run exclusively on the server.
 
-## ☁️ ডিপ্লয়মেন্ট গাইড (Vercel / Node.js Hosting)
+## বাংলা
 
-### Vercel-এ ডিপ্লয় করার নিয়ম (Recommended):
-1. রিপোজিটরিটি GitHub বা GitLab-এ পুশ করুন।
-2. [vercel.com](https://vercel.com) এ লগইন করে **Add New Project** নির্বাচন করুন।
-3. Framework Preset হিসেবে **Next.js** নির্বাচন করুন।
-4. **Environment Variables:**
-   - লোকাল ডেমো মোডে চালানোর জন্য কোনো ভেরিয়েবল সেট করার প্রয়োজন নেই; অ্যাপ স্বয়ংক্রিয়ভাবে ফলব্যাক ডেমো মোডে চলবে।
-   - লাইভ সুপাবেজ ডাটাবেজ ব্যবহার করতে চাইলে `.env.example` অনুসারে `NEXT_PUBLIC_SUPABASE_URL` ও `NEXT_PUBLIC_SUPABASE_ANON_KEY` যুক্ত করুন।
-5. **Deploy** বাটনে ক্লিক করুন। বিল্ড সম্পন্ন হলে তাৎক্ষণিক লাইভ লিংক পাওয়া যাবে।
+### ব্যবহার ও সীমাবদ্ধতা
 
----
+অ্যাপ বাংলায় শুরু হয়। উপরের ভাষা পরিবর্তনের বোতাম দিয়ে ইংরেজি বেছে নিন; ব্রাউজার স্টোরেজ চালু থাকলে পছন্দটি মনে রাখা হয়। রেকর্ডের মূল নাম ও শনাক্তকারী অনুবাদ করা হয় না।
 
-## ⚠️ ডাটা সীমাবদ্ধতা ও লোকাল ডেমো স্টোরেজ ডিসক্লোজার
+- **অনুসন্ধান:** বাংলা বা ইংরেজি সংখ্যায় দাগ নম্বর, দলিল নম্বর অথবা দুটিই দিন। শুরুর শূন্য অক্ষুণ্ণ রাখুন। আটটি কাল্পনিক নমুনা A–H ব্যবহার করুন: A/B-তে প্রদত্ত রেকর্ডে ঝুঁকি শনাক্ত হয় না; C-তে নামের তারতম্য, D-তে বন্ধক, E-তে দ্বৈত বিক্রির সম্ভাবনা, F-তে মালিক-বিক্রেতার অমিল, G-তে অতিরিক্ত জমি বিক্রি এবং H-তে হ্যাশ অমিল রয়েছে।
+- **ফলাফল:** শনাক্ত বিষয়, প্রমাণের প্রাপ্যতা, রেকর্ড ও পরবর্তী ধাপ দেখুন। সবুজ কেবল প্রদত্ত প্রমাণে নির্ধারিত পরীক্ষায় ঝুঁকি না পাওয়া বোঝায়। অনুপস্থিত বা অসংগত প্রমাণ নিরাপদ মালিকানা প্রতিষ্ঠা করে না।
+- **ডেমো নিবন্ধন:** শুধু কাল্পনিক তথ্য দিন। তৈরি ফিঙ্গারপ্রিন্ট দেখুন, QR রসিদ ডাউনলোড বা প্রিন্ট করুন এবং দলিল যাচাই করুন। Supabase চালু থাকলে ডেমো নিবন্ধন বন্ধ থাকে।
+- **QR সরঞ্জাম:** লিংক/কোড পেস্ট করুন অথবা নমুনা বেছে নিন। সমর্থিত ব্রাউজারে ক্যামেরা QR পড়তে পারে; অন্য ক্ষেত্রে হাতে কোড দিন। ক্যামেরার জন্য অনুমতি ও HTTPS বা localhost দরকার।
+- **টেম্পারিং ল্যাব:** অস্থায়ী কপির তথ্য বদলে হ্যাশের পার্থক্য দেখুন। রিসেট করলে কপি আগের অবস্থায় ফেরে। নামজারি অনুমোদন কেবল সফটওয়্যার সিমুলেশন।
 
-1. **ইন-মেমোরি ও লোকালস্টোরেজ ক্যাশ:**  
-   সুপাবেজ সংযোগ ছাড়া লোকাল ডেমো মোডে নতুন নিবন্ধিত দলিলসমূহ সার্ভার মেমোরি ও ক্লায়েন্ট `localStorage`-এ সংরক্ষিত হয়। সার্ভারলেস ক্লাউডে (যেমন: Vercel) একাধিক ইনস্ট্যান্সের মধ্যে এই মেমোরি শেয়ার নাও হতে পারে।  
-   **বিচারকদের জন্য সুপারিশ:** বিচারক প্রদর্শনীতে সর্বদা নির্ভরযোগ্য প্রি-লোডেড ৮টি কেস (Cases A–H) ব্যবহার করুন; এগুলো সার্ভারলেস বা অফলাইন যেকোনো পরিবেশে ১০০% নির্ভরযোগ্য।
-2. **কাল্পনিক তথ্য:**  
-   এই প্ল্যাটফর্মের সমস্ত ব্যক্তি, দাগ, দলিল ও মৌজার নাম সম্পূর্ণ কাল্পনিক। কোনো জীবিত বা মৃত ব্যক্তির সাথে এর কোনো সম্পর্ক নেই।
+হ্যাশ মিলে যাওয়া মূল তথ্যের সত্যতা, বিক্রেতার ক্ষমতা বা আইনি মালিকানা প্রমাণ করে না। এটি সরকারি যাচাই, আইনি পরামর্শ বা মালিকানার সনদ নয়। বাস্তব লেনদেনের আগে মূল রেকর্ড ও যোগ্য পেশাদারের পরামর্শ নিন।
 
----
+### তথ্য কোথায় থাকে
 
-## 🤖 এআই টুলের ব্যবহার ও স্বচ্ছতা (AI Tool Disclosure)
+Supabase ছাড়া অ্যাপের সাথে থাকা কাল্পনিক নমুনা ব্যবহার হয়। নতুন ডেমো দলিলের হ্যাশ সার্ভারে তৈরি হয়; ফেরত পাওয়া রসিদ ব্রাউজারের ডেমো রেজিস্ট্রিতে রাখা হয় এবং সম্ভব হলে `localStorage`-এ সংরক্ষিত হয়। ব্রাউজারের তথ্য মুছে যেতে পারে; সার্ভারের মেমোরিও স্থায়ী বা সব ইনস্ট্যান্সে এক নয়। এটি স্থায়ী যৌথ রেজিস্ট্রি নয়।
 
-- এই সফটওয়্যারটির আর্কিটেকচার ডিজাইন, কোড স্ট্রাকচারিং, বাংলা টাইপোগ্রাফি স্টাইলিং এবং অটোমেটেড টেস্ট কেস প্রস্তুতিতে গুগল ডিপমাইন্ডের **Antigravity AI Agent** জোড়া প্রোগ্রামার (Pair Programmer) হিসেবে সহায়তা করেছে।
-- সমস্ত আইনি যুক্তি, SHA-256 ক্যানোনিকাল সিরিয়ালাইজেশন এবং ট্রাফিক-লাইট রুলস কোডবেজে সম্পূর্ণ নিয়ন্ত্রিত ও টেস্ট-ড্রাইভেন (TDD) পদ্ধতিতে তৈরি।
+**নতুন ডেমো দলিলের QR-এ শুধু অনুসন্ধানের শনাক্তকারী থাকে, সম্পূর্ণ রসিদ থাকে না।** অন্য ডিভাইস বা ব্রাউজারে সেই রসিদ না থাকলে রেকর্ড নাও পাওয়া যেতে পারে। একাধিক ডিভাইসে প্রদর্শনের জন্য অ্যাপের মূল নমুনাগুলো ব্যবহার করুন। রেকর্ড না পাওয়া নিরাপদ মালিকানার প্রমাণ নয়।
 
----
+ঐচ্ছিক Supabase মোড আপনার PostgreSQL ডাটাবেজের স্থায়ী রেকর্ড পড়ে; এটি সরকারি ডাটাবেজ নয়। দেওয়া মাইগ্রেশনের RLS নীতিতে সর্বসাধারণের পড়ার অনুমতি রয়েছে। শুধু কাল্পনিক তথ্য রাখুন এবং উদ্দেশ্য বদলানোর আগে নীতিগুলো পর্যালোচনা করুন। ডেমো নিবন্ধন Supabase-এ তথ্য লেখে না।
 
-## 📄 লাইসেন্স (License)
+### চালানো ও পরীক্ষা
 
-This project is licensed under the MIT License — created for **LandTech Innovation Hackathon 2026**.
+Node.js 22 বা পরবর্তী LTS সংস্করণ, npm ও Git ব্যবহার করুন। উপরের কমান্ড অনুযায়ী `npm ci`, তারপর `npm run dev` চালিয়ে `http://localhost:3000` খুলুন। প্রোডাকশন মোডে আগে `npm run build`, তারপর `npm start` চালান। সাধারণ ডেমোর জন্য ডাটাবেজের কী লাগে না।
+
+Supabase ব্যবহার করতে `.env.example` থেকে `.env.local` বানিয়ে পাবলিক URL ও anon key দিন, নির্ধারিত ডেমো ডাটাবেজে মাইগ্রেশন প্রয়োগ করুন এবং RLS যাচাই করুন। Service role key শুধু সার্ভারে রাখুন; ব্রাউজার বা Git-এ প্রকাশ করবেন না। `npm run seed` চালানোর আগে কোন ডাটাবেজে নমুনা লেখা হবে তা নিশ্চিত করুন।
+
+উপরের পরীক্ষার কমান্ডগুলো ব্যবহার করুন। ফলাফলের বর্তমান প্রমাণ ও হাতে যাচাইয়ের ধাপের জন্য [গ্রহণযোগ্যতা তালিকা](docs/ACCEPTANCE_CHECKLIST.md) এবং [অগ্রগতির নথি](docs/PROGRESS.md) দেখুন। এখানে পুরোনো পরীক্ষার সংখ্যা বা নিশ্চিত সফলতার দাবি করা হচ্ছে না।
+
+## Original project and attribution · মূল প্রকল্প ও কৃতিত্ব
+
+- Original upstream: [irfanulhoquetaseen/landtech_TreeTweet](https://github.com/irfanulhoquetaseen/landtech_TreeTweet)
+- Current repository: [abdullahalyf/tree-tweet](https://github.com/abdullahalyf/tree-tweet)
+- Team / দল: **Hector**
+- Team leader / দলনেতা: **MD IRFANUL HOQUE TASEEN**
+- Team member / সদস্য: **Abdullah Alif**
+- Faculty mentor / অনুষদীয় মেন্টর: **Md. Sagar Hossen**
+
+Original project materials: [Concept note / কনসেপ্ট নোট](docs/CONCEPT_NOTE.md) and [demo video script / ডেমো ভিডিও স্ক্রিপ্ট](docs/DEMO_VIDEO_SCRIPT.md). These preserve the original hackathon concept and demonstration narrative; use this README and current verification evidence for implemented behavior and limitations.
+
+The upstream README credits **Antigravity AI Agent** for development assistance. AI-assisted development does not mean the running assessment uses an AI ownership decision model.
+
+**License attribution:** the original project declares the **MIT License**, created for LandTech Innovation Hackathon 2026. This checkout has no `LICENSE` file; no license text or file is implied by this README. এই কপিতে `LICENSE` ফাইল নেই; মূল প্রকল্পের MIT লাইসেন্স ঘোষণার কৃতিত্ব এখানে সংরক্ষিত হয়েছে।

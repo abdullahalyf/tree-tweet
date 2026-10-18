@@ -43,3 +43,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Isolated agent workspaces and local review artifacts
+/puku1/
+/puku2/
+/puku3/
+/.superpowers/
+/artifacts/

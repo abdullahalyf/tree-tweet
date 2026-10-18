@@ -1,85 +1,40 @@
+﻿'use client';
+
 import React from 'react';
+import { useLanguage } from '@/lib/i18n/LanguageProvider';
 
 export type ActiveNavTab = 'search' | 'register' | 'tamper';
-
 interface NavbarProps {
   activeTab?: ActiveNavTab;
   onTabChange?: (tab: ActiveNavTab) => void;
 }
 
 export function Navbar({ activeTab = 'search', onTabChange }: NavbarProps) {
+  const { language, setLanguage, t } = useLanguage();
+  const tabs: { id: ActiveNavTab; bn: string; en: string; number: string }[] = [
+    { id: 'search', bn: 'জমি যাচাই', en: 'Verify land', number: '01' },
+    { id: 'register', bn: 'ডেমো নিবন্ধন', en: 'Demo registration', number: '02' },
+    { id: 'tamper', bn: 'পরিবর্তন পরীক্ষা', en: 'Tamper lab', number: '03' },
+  ];
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-emerald-100 bg-white/95 backdrop-blur-md shadow-xs">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-auto sm:h-16 py-2.5 sm:py-0 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex items-center justify-between w-full sm:w-auto gap-3">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white font-bold text-xl shadow-sm shadow-emerald-700/20 shrink-0">
-              জমির
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-base sm:text-lg text-slate-900 tracking-tight">
-                  জমি যাচাইকরণ ব্যবস্থা
-                </span>
-                <span className="hidden md:inline-flex text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-                  LandTech 2026
-                </span>
-              </div>
-              <p className="text-[11px] sm:text-xs text-slate-500 font-medium hidden sm:block">
-                AI-Assisted Pre-Purchase Land Verification (Problem P5)
-              </p>
-            </div>
-          </div>
-
-          <span className="text-[11px] sm:hidden px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-medium">
-            MVP
+    <header className="workspace-header">
+      <div className="workspace-topbar">
+        <div className="workspace-brand">
+          <span className="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><path d="M16 26V15m0 5L9 16m7 1 7-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M7 14C7 7 16 5 25 5c0 10-4 16-11 16" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><path d="M6 27h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
           </span>
+          <div><p className="brand-name">TreeTweet<span className="brand-dot">.</span></p><p className="brand-subtitle">{t('জমির ঝুঁকি মূল্যায়ন', 'Land risk assessment')}</p></div>
         </div>
-
-        {/* View Switcher Tabs */}
-        {onTabChange && (
-          <nav className="flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 w-full sm:w-auto overflow-x-auto justify-center">
-            <button
-              type="button"
-              onClick={() => onTabChange('search')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                activeTab === 'search'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              🔍 জমি যাচাই
-            </button>
-            <button
-              type="button"
-              onClick={() => onTabChange('register')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                activeTab === 'register'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              📝 ডেমো দলিল নিবন্ধন
-            </button>
-            <button
-              type="button"
-              onClick={() => onTabChange('tamper')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                activeTab === 'tamper'
-                  ? 'bg-white text-emerald-800 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              🛡️ টেম্পারিং ডেমো
-            </button>
-          </nav>
-        )}
-
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-medium">
-            ডেমো সংস্করণ (MVP)
-          </span>
+        <div className="language-switch" role="group" aria-label={t('ভাষা নির্বাচন', 'Choose language')}>
+          <button type="button" lang="bn" aria-pressed={language === 'bn'} onClick={() => setLanguage('bn')}>বাংলা</button>
+          <button type="button" lang="en" aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>English</button>
         </div>
+      </div>
+      <div className="workspace-nav-row">
+        {onTabChange && <nav className="workspace-nav" aria-label={t('মূল নেভিগেশন', 'Main navigation')}>
+          {tabs.map(tab => <button key={tab.id} type="button" aria-current={activeTab === tab.id ? 'page' : undefined} onClick={() => onTabChange(tab.id)}><span className="nav-number" aria-hidden="true">{tab.number}</span><span>{t(tab.bn, tab.en)}</span></button>)}
+        </nav>}
+        <span className="prototype-label"><span aria-hidden="true" />{t('কাল্পনিক ডেটা · প্রোটোটাইপ', 'Synthetic data · Prototype')}</span>
       </div>
     </header>
   );
